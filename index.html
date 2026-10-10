@@ -274,6 +274,47 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
 .par-res{font-family:var(--f-mono);font-size:12px;padding:2px 8px;border-radius:999px;justify-self:start}
 .par-res.W{background:var(--pos-soft);color:var(--pos)} .par-res.L{background:var(--neg-soft);color:var(--neg)} .par-res.P{background:var(--chip);color:var(--muted)}
 .par-rec{min-width:640px}
+/* v3.5: jump nav + scoreboard */
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin-inline:-16px;margin-block:-14px;padding:8px 16px;background:var(--bg);border-bottom:1px solid var(--rule);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.jump::-webkit-scrollbar{display:none}
+.jump:empty{display:none}
+.jump a{flex:none;font:500 13px var(--f-body);color:var(--ink);text-decoration:none;padding:5px 12px;border-radius:999px;border:1px solid var(--rule);background:var(--panel);white-space:nowrap}
+.jump a:hover{border-color:var(--muted)}
+.jump a[aria-current]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.jump a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:8px}
+@media (max-width:460px){.sb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sb-tile{position:relative;display:grid;gap:2px;align-content:start;text-align:left;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:11px 32px 12px 14px;cursor:pointer;min-width:0}
+.sb-tile:hover{border-color:var(--muted)}
+.sb-tile:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sb-tile::after{content:"+";position:absolute;top:9px;right:12px;font:500 15px var(--f-mono);color:var(--muted)}
+.sb-tile[aria-expanded="true"]{border-color:var(--ink);box-shadow:inset 0 -3px 0 var(--accent)}
+.sb-tile[aria-expanded="true"]::after{content:"−";color:var(--ink)}
+.sb-tile .lbl{font:600 10.5px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.sb-tile b{font-family:var(--f-display);font-size:32px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.sb-tile .s{font-size:12.5px;color:var(--muted)}
+.sb-up{color:var(--pos)} .sb-dn{color:var(--neg)}
+.sb-panel{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px);background:var(--panel);border:1px solid var(--ink);border-radius:10px;padding:14px;display:grid;gap:14px;min-width:0}
+.sb-panel .sec-head h3{font-size:20px;text-transform:uppercase;letter-spacing:.04em}
+.sb-stats{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;color:var(--muted)}
+.sb-stats b{font-family:var(--f-mono);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.sb-tbl{border-collapse:collapse;width:100%;max-width:560px;min-width:0;font-size:13px}
+.sb-tbl th,.sb-tbl td{padding:6px 8px;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap}
+.sb-tbl th:first-child,.sb-tbl td:first-child{text-align:left;font-family:var(--f-body);font-size:13px;font-weight:500;white-space:normal}
+.sb-tbl th{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.sb-tbl td{font-family:var(--f-mono)}
+.sb-tbl tr:last-child td{border-bottom:0}
+.gl{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.gl li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;border-top:1px solid var(--rule);padding-top:8px}
+.gl li:first-child{border-top:0;padding-top:0}
+.gl li > div{min-width:0}
+.gl b{font-family:var(--f-display);font-size:19px;font-weight:600;margin-right:6px}
+.gl small{display:block;font-size:12.5px;color:var(--muted)}
+.gl .r{display:grid;justify-items:end;gap:3px;font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
+.sb-panel .dnote a,#sb-week a{color:var(--ink);white-space:nowrap}
 </style>
 
 <div class="wrap">
@@ -286,31 +327,40 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
     <p class="sub">Opponent-adjusted ratings for passing, rushing, consistency, pace and the starting quarterback, plus injury clusters, wind and travel. Bets come from stacking independent edges. The system archives every line and projection, retests itself weekly, and promotes or retires rules only when the evidence says so.</p>
   </header>
 
-  <section aria-labelledby="run-h">
+  <nav class="jump" id="jump" aria-label="Jump to a section"></nav>
+
+  <section id="scoreboard" data-nav="Scoreboard" aria-labelledby="sb-h">
+    <div class="sec-head"><h2 id="sb-h">Scoreboard</h2><span class="eyebrow" id="sb-note"></span></div>
+    <div class="sb-grid" id="sb-tiles"></div>
+    <div class="sb-panel" id="sb-panel" role="region" hidden></div>
+    <p class="sub" id="sb-week" style="font-size:13px"></p>
+  </section>
+
+  <section id="run-now" data-nav="Run now" aria-labelledby="run-h">
     <div class="sec-head"><h2 id="run-h">Run now</h2><span class="eyebrow" id="run-sub">Start a scheduled task on demand · results land here in about 10–20 min</span></div>
     <div class="run-grid" id="run-grid"></div>
     <p class="sub" id="run-note" style="font-size:13px"></p>
   </section>
 
-  <section aria-labelledby="edges-h">
+  <section id="bets" data-nav="Bets" aria-labelledby="edges-h">
     <div class="sec-head"><h2 id="edges-h">This week's bets</h2><span class="eyebrow" id="lock-note"></span></div>
     <div id="edges"></div>
   </section>
 
-  <section aria-labelledby="picks-h">
+  <section id="every-game-picks" data-nav="Picks" aria-labelledby="picks-h">
     <div class="sec-head"><h2 id="picks-h">Every-game picks</h2><span class="eyebrow" id="picks-note"></span></div>
     <p class="sub" id="picks-sub" style="font-size:13.5px"></p>
     <div class="picks" id="picks"></div>
     <p class="callout" id="picks-rec"></p>
   </section>
 
-  <section aria-labelledby="teaser-h">
+  <section id="teaser-board" data-nav="Teasers" aria-labelledby="teaser-h">
     <div class="sec-head"><h2 id="teaser-h">Teaser board</h2><span class="eyebrow">6-point legs through 3 and 7 · pair any two</span></div>
     <div class="teaser-grid" id="teasers"></div>
     <p class="sub" id="teaser-note" style="font-size:13px"></p>
   </section>
 
-  <section aria-labelledby="par-h">
+  <section id="parlay-builder" data-nav="Parlays" aria-labelledby="par-h">
     <div class="sec-head"><h2 id="par-h">Parlay builder</h2><span class="eyebrow" id="par-note"></span></div>
     <p class="sub" id="par-sub" style="font-size:13.5px"></p>
     <div class="par-pool" id="par-pool"></div>
@@ -321,12 +371,12 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
     <p class="callout" id="par-math"></p>
   </section>
 
-  <section aria-labelledby="split-h">
+  <section id="line-shopping" data-nav="Line shopping" aria-labelledby="split-h">
     <div class="sec-head"><h2 id="split-h">Line shopping</h2><span class="eyebrow" id="books-ts">Books disagreeing by 1+ point, and Polymarket splits</span></div>
     <div class="splits" id="splits"></div>
   </section>
 
-  <section aria-labelledby="rec-h">
+  <section id="by-season" data-nav="By season" aria-labelledby="rec-h">
     <div class="sec-head"><h2 id="rec-h">Record by season</h2>
       <div class="seg" role="group" aria-label="Show record as">
         <button type="button" id="rv-pct" aria-pressed="true" data-v="pct">Win %</button>
@@ -337,7 +387,7 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
     <p class="callout" id="rec-note"></p>
   </section>
 
-  <section aria-labelledby="lab-h">
+  <section id="model-lab" data-nav="Lab" aria-labelledby="lab-h">
     <div class="sec-head"><h2 id="lab-h">Model lab</h2><span class="eyebrow" id="lab-sub"></span></div>
     <div class="lab-grid" id="lab-tiles"></div>
     <div class="tier-h"><h3>Strategy registry</h3><span>Every rule the system uses, with its evidence and live status</span></div>
@@ -353,7 +403,7 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
     <p class="callout" id="lab-note"></p>
   </section>
 
-  <section aria-labelledby="slate-h">
+  <section id="full-slate" data-nav="Slate" aria-labelledby="slate-h">
     <div class="sec-head">
       <h2 id="slate-h">Full slate</h2>
       <div class="seg" role="group" aria-label="Filter games">
@@ -364,18 +414,13 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
     <div class="games" id="games"></div>
   </section>
 
-  <section aria-labelledby="hist-h">
-    <div class="sec-head"><h2 id="hist-h">Live tracker</h2><span class="eyebrow">Every locked bet · result and line movement</span></div>
-    <div id="hist"></div>
-  </section>
-
-  <section aria-labelledby="rate-h">
+  <section id="team-ratings" data-nav="Ratings" aria-labelledby="rate-h">
     <div class="sec-head"><h2 id="rate-h">Team ratings</h2><span class="eyebrow">Opponent-adjusted, per play vs average · tap a column to sort</span></div>
     <div class="chart-wrap"><svg id="scatter" viewBox="0 0 640 400" role="img" aria-label="Offense versus defense EPA per play by team"></svg></div>
     <div class="tbl-wrap"><table id="ratings"><thead></thead><tbody></tbody></table></div>
   </section>
 
-  <section aria-labelledby="method-h">
+  <section id="how-it-works" data-nav="How it works" aria-labelledby="method-h">
     <div class="sec-head"><h2 id="method-h">How it works</h2></div>
     <div class="method">
       <div><h3>Ratings</h3><p>Plays since 2016 feed weighted ridge regressions for dropback EPA, rush EPA, dropback and rush success rate, neutral-situation pass rate and plays per game, each split into offense, defense and home effects. Recent weeks count most (a play's weight halves about every 8 weeks) and last season's plays get a further 16% discount, so this season is about 45% of the picture by Week 5 and 85% by Week 18. Starting QBs get their own term that follows them across teams.</p></div>
@@ -925,19 +970,117 @@ document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', (
 }));
 try { if (localStorage.getItem('nfl-filter') === 'flag') $('f-flag').click(); } catch (e) {}
 
-// ---------- live tracker ----------
-const H = (D.history || []).filter(h => h.season === D.season);
-if (!H.length) {
-  $('hist').innerHTML = `<p class="sub">Tracking starts with Week ${D.week}. After each game, every locked bet is graded at its locked line and compared with the closing line.</p>`;
-} else {
-  const sum = sel => { let w = 0, l = 0, c = 0, n = 0; sel.forEach(h => { if (h.result === 'W') w++; else if (h.result === 'L') l++; if (h.clv != null) { c += h.clv; n++; } }); return {w, l, clv: n ? c / n : null}; };
-  const t = k => sum(H.filter(h => h.kind === k));
-  const tile = (lbl, s) => `<div><b class="num">${s.w}–${s.l}</b><span>${lbl}${s.clv != null ? ` · CLV ${s.clv >= 0 ? '+' : '−'}${Math.abs(s.clv).toFixed(2)}` : ''}</span></div>`;
-  $('hist').innerHTML = `<div class="track" style="margin-bottom:10px">${tile('Best Bets', t('best'))}${tile('Plays', t('model'))}${tile('Angles', t('angle'))}${tile('Verify', t('verify'))}${tile('Teaser legs', t('teaser'))}${tile('Paper (probation)', t('paper'))}</div>
-    <div class="tbl-wrap"><table><thead><tr><th>Wk</th><th>Bet</th><th>Tier</th><th>Close</th><th>CLV</th><th>Final</th><th>Result</th></tr></thead><tbody>
-    ${H.slice().reverse().map(h => `<tr><td>${h.week}</td><td>${esc(h.pick)}</td><td>${esc(h.tier)}</td><td>${esc(h.close ?? '—')}</td><td>${h.clv == null ? '—' : (h.clv >= 0 ? '+' : '−') + Math.abs(h.clv).toFixed(1)}</td><td>${esc(h.final)}</td><td>${h.result === 'V' ? `<span title="${esc(h.void || '')}">Void</span>` : esc(h.result)}</td></tr>`).join('')}
-    </tbody></table></div>`;
-}
+// ---------- scoreboard: this season's live record up top; each tile opens its detail ----------
+(function(){
+  const H = (D.history || []).filter(h => h.season === D.season);
+  const REAL = ['best', 'model', 'angle', 'verify'], RANK = {best: 0, model: 1, angle: 2, verify: 3};
+  const STRAT = Object.fromEntries(((D.lab || {}).strategies || []).map(s => [s.id, s.name]));
+  const uOf = h => h.result === 'W' ? (h.price == null ? 100 / 110 : h.price < 0 ? 100 / -h.price : h.price / 100) : h.result === 'L' ? -1 : 0;
+  const recOf = rows => {
+    const r = {w: 0, l: 0, p: 0, u: 0, clv: null, nc: 0, beat: 0}; let c = 0;
+    rows.forEach(h => {
+      if (h.result === 'W') r.w++; else if (h.result === 'L') r.l++; else if (h.result === 'P') r.p++;
+      r.u += uOf(h);
+      if (h.clv != null && h.result && h.result !== 'V') { c += h.clv; r.nc++; if (h.clv > 0) r.beat++; }
+    });
+    if (r.nc) r.clv = c / r.nc; return r;
+  };
+  const wl = r => `${r.w || 0}–${r.l || 0}${r.p ? '–' + r.p : ''}`;
+  const graded = r => (r.w || 0) + (r.l || 0) + (r.p || 0);
+  const uTxt = u => `${u >= 0 ? '+' : '−'}${Math.abs(u || 0).toFixed(1)}u`;
+  const pctTxt = r => (r.w || 0) + (r.l || 0) ? `${Math.round(r.w / (r.w + r.l) * 100)}%` : '—';
+  const clv2 = c => c == null ? '—' : `${c >= 0 ? '+' : '−'}${Math.abs(c).toFixed(2)}`;
+  const clv1 = c => `${c >= 0 ? '+' : '−'}${Math.abs(c).toFixed(1)}`;
+  const tone = (v, s) => `<span class="${v > 0 ? 'sb-up' : v < 0 ? 'sb-dn' : ''}">${s}</span>`;
+  const res = r => r ? `<span class="par-res ${r === 'W' || r === 'L' ? r : 'P'}">${({W: 'Won', L: 'Lost', P: 'Push', V: 'Void'})[r] || r}</span>` : '<span class="par-res P">Pending</span>';
+  const stats = r => `<div class="sb-stats"><span>Record <b>${wl(r)}</b></span><span>Win rate <b>${pctTxt(r)}</b></span><span>Units <b>${graded(r) ? uTxt(r.u) : '—'}</b></span>${r.clv !== undefined ? `<span>Avg CLV <b>${clv2(r.clv)}</b></span>` : ''}${r.nc ? `<span>Beat the close <b>${r.beat} of ${r.nc}</b></span>` : ''}</div>`;
+  const tierName = k => (TIERS[k] || {}).name || k;
+  const betRow = (h, note) => `<li><div><b>${esc(h.pick)}</b><span class="pill t-${(TIERS[h.kind] || {}).cls || 'none'}">${esc(tierName(h.kind))}</span>
+      <small>Week ${h.week} · ${esc(h.book || 'best line')}${h.price != null ? ' ' + px(h.price) : ''} · locked ${esc(h.locked_at || '—')}</small>
+      <small>Final ${esc(h.final || '—')} · closed ${esc(h.close || '—')}${h.clv != null ? ` · CLV ${clv1(h.clv)}` : ''}</small>${note ? `<small>${note}</small>` : ''}</div>
+      <div class="r">${res(h.result)}${h.result && h.result !== 'V' ? tone(uOf(h), uTxt(uOf(h))) : ''}</div></li>`;
+  const list = (rows, empty, note) => rows.length
+    ? `<ul class="gl">${rows.slice().sort((a, b) => b.week - a.week).map(h => betRow(h, note && note(h))).join('')}</ul>`
+    : `<p class="sub" style="font-size:13.5px">${empty}</p>`;
+  const tbl = (head, rows) => `<div class="bwrap"><table class="sb-tbl"><thead><tr>${head.map(x => `<th scope="col">${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+  const small = n => n < 50 ? `<p class="dnote">${n ? `${n} graded so far.` : 'Nothing graded yet.'} Under about 50 results a win-loss record is mostly noise. Closing line value (did the market move toward the bet after it locked?) is the earlier read on whether the edge is real.</p>` : '';
+  const jump = (id, txt) => `<a href="#${id}" data-jump="${id}">${txt}</a>`;
+
+  // one entry per distinct bet: a pick flagged by two rules counts once, under its top tier
+  const top = new Map();
+  H.filter(h => REAL.includes(h.kind)).forEach(h => {
+    const k = `${h.game_id}|${h.market}|${h.side}`, p = top.get(k);
+    if (!p || RANK[h.kind] < RANK[p.kind]) top.set(k, h);
+  });
+  const BETS = [...top.values()], R = recOf(BETS);
+  const byKind = k => H.filter(h => h.kind === k);
+  const BB = recOf(byKind('best')), PAPER = byKind('paper'), RP = recOf(PAPER), TL = recOf(byKind('teaser'));
+  const backBest = Object.entries((D.records || {}).seasons || {}).filter(([s, v]) => +s < D.season && v.best)
+    .reduce((a, [s, v]) => ({w: a.w + v.best.w, l: a.l + v.best.l, p: a.p + (v.best.p || 0), u: a.u + v.best.units, s0: Math.min(a.s0, +s), s1: Math.max(a.s1, +s)}), {w: 0, l: 0, p: 0, u: 0, s0: 9999, s1: 0});
+  const AL = ((ATS || {}).live || {})[String(D.season)] || {}, AA = AL.all || {w: 0, l: 0, units: 0}, AH = AL.High || {w: 0, l: 0, units: 0}, AW = AL.Low || {w: 0, l: 0, units: 0};
+  const ARec = ((ATS || {}).recent || []).filter(a => a.season === D.season);
+  const PLV = (PL.live || {})[String(D.season)] || {}, PA = PLV.all || {w: 0, l: 0, p: 0, units: 0};
+  const PRec = (PL.recent || []).filter(r => r.season === D.season);
+  const PK = ['teaser2', 'teaser3', 'parlay2', 'parlay3', 'mixed2'];
+
+  const T = [
+    {key: 'all', lbl: 'All bets', big: wl(R), sub: graded(R) ? `${tone(R.u, uTxt(R.u))} · ${pctTxt(R)}` : 'no results yet', title: `All bets · ${D.season}`,
+     body: () => `${stats(R)}
+       ${tbl(['Tier', 'Record', 'Win %', 'Units', 'Avg CLV'], REAL.map(k => { const r = recOf(BETS.filter(h => h.kind === k)), g = graded(r); return `<tr><td>${({best: 'Best Bets', model: 'Plays', angle: 'Angles', verify: 'Verify'})[k]}</td><td>${wl(r)}</td><td>${pctTxt(r)}</td><td>${g ? tone(r.u, uTxt(r.u)) : '—'}</td><td>${clv2(r.clv)}</td></tr>`; }))}
+       ${list(BETS, `No bets graded yet this season. Bets are graded after each game at the line they locked at.`)}
+       ${small(graded(R))}
+       <p class="dnote">1 unit per bet at the locked price. A pick flagged by two rules counts once, under its higher tier. Void bets (a required quarterback didn't start) don't count. ${jump('bets', "This week's bets →")}</p>`},
+    {key: 'best', lbl: 'Best Bets', big: wl(BB), sub: graded(BB) ? `${tone(BB.u, uTxt(BB.u))} · ${pctTxt(BB)}` : 'no results yet', title: 'Best Bets',
+     body: () => `${stats(BB)}
+       ${backBest.w + backBest.l ? `<p class="dnote">Backtest ${backBest.s0}–${backBest.s1}, each season projected only from earlier data: <b>${backBest.w}–${backBest.l}${backBest.p ? '–' + backBest.p : ''}</b> (${Math.round(backBest.w / (backBest.w + backBest.l) * 100)}%), ${uTxt(backBest.u)}.</p>` : ''}
+       ${list(byKind('best'), 'No Best Bets graded yet this season.')}
+       ${small(graded(BB))}`},
+    {key: 'ats', lbl: 'Every-game picks', big: wl(AA), sub: `High ${wl(AH)}${(AA.w || 0) + (AA.l || 0) ? ` · ${tone(AA.units, uTxt(AA.units))}` : ''}`, title: 'Every-game picks',
+     body: () => `<div class="sb-stats"><span>All <b>${wl(AA)}</b>${graded(AA) ? ' · ' + uTxt(AA.units) : ''}</span><span>High confidence <b>${wl(AH)}</b>${graded(AH) ? ' · ' + uTxt(AH.units) : ''}</span><span>Low <b>${wl(AW)}</b>${graded(AW) ? ' · ' + uTxt(AW.units) : ''}</span></div>
+       ${ARec.length ? `<ul class="gl">${ARec.slice().reverse().map(a => `<li><div><b>${esc(atsLine(a))}</b><span class="pill t-${a.tier === 'High' ? 'high' : 'low'}">${a.tier}${a.conf != null ? ' · ' + Math.round(a.conf * 100) + '%' : ''}</span><small>Week ${a.week} · Final ${esc(a.final || '—')}</small></div><div class="r">${res(a.result)}</div></li>`).join('')}</ul>`
+         : '<p class="sub" style="font-size:13.5px">No every-game picks graded yet this season.</p>'}
+       ${ATS && ATS.backtest && ATS.backtest.High ? `<p class="dnote">Backtest ${esc(ATS.backtest.seasons)}: High-confidence picks ${wl(ATS.backtest.High)} (${pctTxt(ATS.backtest.High)}), all picks ${wl(ATS.backtest.all)} (${pctTxt(ATS.backtest.all)}). Break-even at −110 is 52.4%.</p>` : ''}
+       <p class="dnote">The model's side of the spread in every game, graded at the locked line. ${jump('every-game-picks', 'This week’s picks →')}</p>`},
+    {key: 'par', lbl: 'Parlays & teasers', big: wl(PA), sub: graded(PA) ? tone(PA.units, uTxt(PA.units)) : 'no results yet', title: 'Parlays & teasers',
+     body: () => `${tbl(['Type', 'Status', `${D.season} live`, `Backtest ${esc((PL.backtest || {}).seasons || '')}`],
+         PK.filter(k => ((PL.backtest || {}).kinds || {})[k] || PLV[k]).map(k => { const lv = PLV[k] || {w: 0, l: 0, units: 0}, b = ((PL.backtest || {}).kinds || {})[k];
+           return `<tr><td>${esc((PL.names || {})[k] || k)}</td><td>${(PL.status || {})[k] === 'paper' ? 'Paper' : 'Active'}</td><td>${wl(lv)}${graded(lv) ? ' · ' + tone(lv.units, uTxt(lv.units)) : ''}</td><td>${b ? `${wl(b)} · ${uTxt(b.units)}` : '—'}</td></tr>`; }))}
+       ${PRec.length ? `<ul class="gl">${PRec.slice().reverse().map(r => `<li><div><b>${esc(r.name)}</b><small>Week ${r.week} · ${esc(r.version)} card · ${r.price != null ? px(r.price) : ''}</small><small>${(r.legs || []).map(esc).join(' · ')}</small></div><div class="r">${res(r.result)}${r.units != null ? tone(r.units, uTxt(r.units)) : ''}</div></li>`).join('')}</ul>`
+         : '<p class="sub" style="font-size:13.5px">No parlay or teaser cards graded yet this season. The card locks with the final picks.</p>'}
+       ${graded(TL) ? `<p class="dnote">Teaser legs on their own: ${wl(TL)}.</p>` : ''}
+       <p class="dnote">1 unit per card. Paper types are tracked, not recommended. ${jump('parlay-builder', 'This week’s card →')}</p>`},
+    {key: 'clv', lbl: 'Line value', big: R.clv == null ? '—' : clv2(R.clv), sub: R.nc ? `beat the close ${R.beat} of ${R.nc}` : 'avg points vs closing line', title: 'Closing line value',
+     body: () => `<div class="sb-stats"><span>Avg CLV <b>${clv2(R.clv)}</b> pts</span><span>Beat the close <b>${R.beat} of ${R.nc}</b></span><span>Matched it <b>${BETS.filter(h => h.clv === 0).length}</b></span></div>
+       <p class="sub" style="font-size:13.5px">CLV is how far the line moved between the lock and kickoff, from the bet's side. Positive means the market moved toward the bet, so the locked number was better than the closing number. Over a season, consistently positive CLV is the clearest sign the model sees something the market later agrees with, long before the win-loss record can show it.</p>
+       ${BETS.filter(h => h.clv != null).length ? `<ul class="gl">${BETS.filter(h => h.clv != null).sort((a, b) => b.clv - a.clv).map(h => `<li><div><b>${esc(h.pick)}</b><small>Week ${h.week} · ${esc(tierName(h.kind))} · closed ${esc(h.close || '—')}</small></div><div class="r">${tone(h.clv, clv1(h.clv) + ' pts')}</div></li>`).join('')}</ul>` : ''}`},
+    {key: 'paper', lbl: 'Watch list', big: wl(RP), sub: 'paper rules · not bet', title: 'Watch list (paper)',
+     body: () => `${stats(RP)}
+       ${list(PAPER, 'No paper picks graded yet this season.', h => `Rule: ${esc(STRAT[h.strategy] || (h.why || []).join('; ') || h.strategy)}`)}
+       <p class="dnote">Rules on probation are tracked on paper and never recommended. The lab promotes a rule to a real bet only after its live record holds up, and retires it if it doesn't.</p>`},
+  ];
+
+  $('sb-note').textContent = `${D.season} season · live results`;
+  $('sb-tiles').innerHTML = T.map(t => `<button type="button" class="sb-tile" id="sbt-${t.key}" data-k="${t.key}" aria-expanded="false" aria-controls="sb-panel"><span class="lbl">${t.lbl}</span><b>${t.big}</b><span class="s">${t.sub}</span></button>`).join('');
+  const panel = $('sb-panel'); let open = null;
+  function show(k){
+    open = open === k ? null : k;
+    T.forEach(t => $('sbt-' + t.key).setAttribute('aria-expanded', String(t.key === open)));
+    if (!open) { panel.hidden = true; panel.innerHTML = ''; return; }
+    const t = T.find(x => x.key === open);
+    panel.innerHTML = `<div class="sec-head"><h3 id="sb-ph">${esc(t.title)}</h3><button type="button" class="linkbtn" id="sb-close">Close</button></div>${t.body()}`;
+    panel.setAttribute('aria-labelledby', 'sb-ph');
+    panel.hidden = false;
+    $('sb-close').onclick = () => { const k0 = open; show(k0); $('sbt-' + k0).focus(); };
+    const r = panel.getBoundingClientRect();
+    if (r.top > innerHeight - 120) panel.scrollIntoView({block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  }
+  document.querySelectorAll('.sb-tile').forEach(b => b.addEventListener('click', () => show(b.dataset.k)));
+  panel.addEventListener('keydown', e => { if (e.key === 'Escape' && open) { const k0 = open; show(k0); $('sbt-' + k0).focus(); } });
+
+  const nLive = all.filter(x => x.f.live && REAL.includes(x.f.kind)).length;
+  const wk = recOf(BETS.filter(h => h.week === D.week));
+  $('sb-week').innerHTML = `Week ${D.week}: ${graded(wk) ? `${wl(wk)} so far · ` : ''}${D.locked_at ? `final card locked ${esc(D.locked_at)}` : `${nLive} live bet${nLive === 1 ? '' : 's'} on the card, updating until ${esc(D.lock_plan || 'Saturday night')}`} · ${jump('bets', 'See them →')}`;
+})();
 
 // ---------- ratings table ----------
 const cols = [['team','Team', t => t.team], ['net','Net', t => t.net],
@@ -993,8 +1136,8 @@ drawTable();
 const SERVER = 'Claude Code Remote';
 const T = {
   cap: {id: 'trig_01Nvz1o4xFqsBbtRzfNqh288', name: 'NFL lines capture (twice daily, your computer)', sched: 'daily 5:35 AM & 9:35 PM'},
-  mid: {id: 'trig_01GsQanebeibnVQTuxM8QMnK', name: 'NFL model: mid-week injury refresh (Thu & Fri mornings)', sched: 'Thu & Fri 6:50 AM'},
-  sat: {id: 'trig_01PCBkvbFW7SbpkTWkkdyKoT', name: 'NFL model: Mon lock + Sat wind/injury update', sched: 'Mon & Sat 5:50 AM'},
+  mid: {id: 'trig_01GsQanebeibnVQTuxM8QMnK', name: 'NFL model: Thu & Fri morning refresh (locks Thursday games)', sched: 'Thu & Fri 6:50 AM'},
+  sat: {id: 'trig_01PCBkvbFW7SbpkTWkkdyKoT', name: 'NFL model: Sat/Mon morning refresh + Sun-morning lock fallback', sched: 'Sat, Sun & Mon 5:50 AM'},
   lab: {id: 'trig_01PPobmdQKiabPBKivGvQbJ6', name: 'NFL model: weekly self-improvement lab', sched: 'Tue 4:50 AM'},
 };
 const stamp = d => d.toISOString().replace(/[-:]/g, '').slice(0, 13) + 'Z';
@@ -1003,13 +1146,13 @@ const waitTxt = (d, sat) => `On-demand run started from the dashboard's Run now 
   + ' When finished, always send a short SendUserMessage: what changed for locked bets and the every-game picks, or "no changes".';
 const RUNS = [
   {key: 'refresh', name: 'Refresh now', show: 'mid', mins: '15–20',
-   desc: 'Capture on your computer, then re-project every game. Locked bets stay locked.',
+   desc: 'Capture on your computer, then re-project every game. Live picks update; locked games stay locked.',
    steps: d => [{t: 'cap'}, {t: 'mid', text: waitTxt(d, false)}]},
   {key: 'capture', name: 'Capture only', show: 'cap', mins: '5',
    desc: 'Book lines, forecasts and ESPN injury news from your computer.',
    steps: d => [{t: 'cap'}]},
   {key: 'sat', name: 'Saturday update', show: 'sat', mins: '15–20',
-   desc: 'Capture, then add wind and injury bets. For Saturday mornings.',
+   desc: 'Capture, then refresh picks with the latest injury and wind news.',
    steps: d => [{t: 'cap'}, {t: 'sat', text: waitTxt(d, true)}]},
   {key: 'lab', name: 'Weekly lab', show: 'lab', mins: '30',
    desc: 'Grade results, retest the model, rebuild the records.',
@@ -1142,6 +1285,43 @@ Promise.all([use('mcp'), use('permissions')]).then(async ([m, p]) => {
 });
 })();
 </script>
-
+<script>
+// ---------- jump nav: one chip per visible section; highlights the section in view ----------
+(function(){
+const nav = document.getElementById('jump'); if (!nav) return;
+const secs = [...document.querySelectorAll('section[data-nav]')].filter(s => !s.hidden);
+nav.innerHTML = secs.map(s => `<a href="#${s.id}" data-id="${s.id}">${s.dataset.nav}</a>`).join('');
+const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function go(id){
+  const el = document.getElementById(id); if (!el) return;
+  el.scrollIntoView({behavior: reduce() ? 'auto' : 'smooth', block: 'start'});
+  try { history.replaceState(null, '', '#' + id); } catch (e) {}
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-id], a[data-jump]'); if (!a) return;
+  e.preventDefault(); go(a.dataset.id || a.dataset.jump);
+});
+const links = Object.fromEntries([...nav.querySelectorAll('a')].map(a => [a.dataset.id, a]));
+let cur = null, ticking = false;
+function mark(){
+  ticking = false;
+  const y = nav.getBoundingClientRect().bottom + 24;
+  let id = secs[0] && secs[0].id;
+  for (const s of secs) { if (s.getBoundingClientRect().top <= y) id = s.id; else break; }
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4 && secs.length) id = secs[secs.length - 1].id;
+  if (id === cur) return; cur = id;
+  Object.values(links).forEach(a => a.removeAttribute('aria-current'));
+  const a = links[id]; if (!a) return;
+  a.setAttribute('aria-current', 'location');
+  const l = a.offsetLeft - 16, r = a.offsetLeft + a.offsetWidth + 16;
+  if (l < nav.scrollLeft) nav.scrollLeft = l; else if (r > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = r - nav.clientWidth;
+}
+addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(mark); } }, {passive: true});
+addEventListener('resize', mark);
+mark();
+const h = location.hash.slice(1);
+if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
+})();
+</script>
 
 </html>
