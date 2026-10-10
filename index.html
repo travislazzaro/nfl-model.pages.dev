@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
-
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -50,7 +49,8 @@ section{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .edges{display:grid;gap:8px}
 .edge-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:10px 12px}
 .edge-row .what{min-width:0}
-.edge-row .what b{font-family:var(--f-display);font-size:20px;font-weight:600}
+.edge-row .what > b{font-family:var(--f-display);font-size:20px;font-weight:600}
+.edge-row .what small b{font-weight:600}
 .edge-row .what small{display:block;color:var(--muted);font-size:12.5px}
 .more{justify-self:start;font:500 13px var(--f-body);color:var(--ink);background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:7px 12px;cursor:pointer}
 .more:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -317,6 +317,20 @@ section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
 .gl small{display:block;font-size:12.5px;color:var(--muted)}
 .gl .r{display:grid;justify-items:end;gap:3px;font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
 .sb-panel .dnote a,#sb-week a{color:var(--ink);white-space:nowrap}
+/* v3.8: why this bet */
+.whyd{margin-top:8px}
+.why-box{display:grid;gap:12px;margin-top:10px;font-size:13px;color:var(--ink)}
+.why-sec p{margin:0;line-height:1.5}
+.why-sec .mini-h{margin-bottom:4px}
+.why-list{margin:0;padding-left:18px;display:grid;gap:4px;line-height:1.45}
+.why-dim{color:var(--muted)}
+.why-box .parts{margin:2px 0 8px}
+.edge-row .what .why-box b,.gl .why-box b{font-family:inherit;font-size:inherit;font-weight:650;margin:0}
+.gl .why-box li{display:list-item;border-top:0;padding-top:0}
+.edge-row .what .why-box small,.gl .why-box small{display:inline;font-size:inherit}
+.gl .whyd summary{font-size:12.5px}
+.gl li:has(.whyd[open]),.edge-row:has(.whyd[open]){align-items:start}
+@media (max-width:460px){.why-box .part,.why-box .part-axis{grid-template-columns:minmax(0,1fr) 72px 58px;gap:6px}.why-box{font-size:12.5px}}
 /* v3.7: week archive */
 .wkstrip{display:flex;align-items:center;gap:4px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
 .wkstrip::-webkit-scrollbar{display:none}
@@ -540,6 +554,7 @@ const estTxt = f => {
   return ` · <span style="color:var(${ok ? '--pos' : '--warn'})">rule's est. win rate ${(e * 100).toFixed(1)}% vs ${(be * 100).toFixed(1)}% to break even${ok ? '' : ' (below)'}</span>`;
 };
 let edgesHtml = '';
+const WHY = [];          // {g, f} for each bet row; "Why this bet" fills in on first open
 ['best','model','angle','verify','paper'].forEach(k => {
   const rows = all.filter(x => x.f.kind === k).sort((a, b) => (b.f.edge || 0) - (a.f.edge || 0));
   if (!rows.length) return;
@@ -553,7 +568,8 @@ const mvTxt = f.live ? `<span class="mv">live · best current line · locks ${es
     const rq = f.requires_qb;
     const cond = rq && f.void_now ? `<span class="cond" style="color:var(--neg)">Void: ${esc(rq.name)} is no longer the projected starter. No action, don't bet this.</span>` : rq ? `<span class="cond">Only if ${esc(rq.name)} starts: void otherwise. With ${esc(rq.backup)} the edge is ${rq.edge_if_backup >= 0 ? '+' : '−'}${Math.abs(rq.edge_if_backup).toFixed(1)}, so wait for the Friday report or bet knowing that risk.</span>` : '';
     return `<div class="edge-row"><span class="mkt">${f.market === 'total' ? 'Total' : 'Spread'}</span>
-      <div class="what"><b>${esc(pickTxt(g, f))}</b>${why}${cond}<small><b>${esc(f.src)}${f.price != null ? ' ' + px(f.price) : ''}</b> · ${model}${estTxt(f)} · ${esc(kick(g))}<br>${mvTxt}</small></div>
+      <div class="what"><b>${esc(pickTxt(g, f))}</b>${why}${cond}<small><b>${esc(f.src)}${f.price != null ? ' ' + px(f.price) : ''}</b> · ${model}${estTxt(f)} · ${esc(kick(g))}<br>${mvTxt}</small>
+        <details class="more-d whyd" data-w="${WHY.push({g, f}) - 1}"><summary>Why this bet</summary><div class="why-box"></div></details></div>
       <span class="pill t-${TIERS[k].cls}">${TIERS[k].name}${f.edge != null ? ' ' + f.edge.toFixed(1) : ''}</span></div>`;
   }).join('') + '</div>';
 });
@@ -789,6 +805,15 @@ if (RS) {
       ${gp.tests.map(x => `<tr><td>${esc(x.what)}${x.kept ? '<small>best version · weekly challenger</small>' : ''}</td><td class="n">${x.delta > 0 ? '+' : x.delta < 0 ? '−' : ''}${Math.abs(x.delta).toFixed(3)} pts${x.market === 'total' ? '<small>total</small>' : '<small>margin</small>'}</td><td class="n">${x.t > 0 ? '+' : x.t < 0 ? '−' : ''}${Math.abs(x.t).toFixed(2)}</td></tr>`).join('')}
     </tbody></table></div>`).join('') + `<ul class="notes">${RS.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul><p class="sub" style="font-size:12px">${esc(RS.baseline)}</p>`;
 }
+document.addEventListener('toggle', e => {          // fill "Why this bet" the first time it opens
+  const d = e.target;
+  if (!d.classList || !d.classList.contains('whyd') || !d.open) return;
+  const box = d.querySelector('.why-box'); if (box.dataset.done) return;
+  const w = WHY[+d.dataset.w]; if (!w) return;
+  try { box.innerHTML = whyHtml(w.g, w.f); } catch (err) { box.innerHTML = '<p class="sub">Breakdown unavailable for this pick.</p>'; }
+  box.dataset.done = '1';
+}, true);
+
 // ---------- week archive: every past week of the season, one tap away (week strip in the header) ----------
 (function(){
   const A = D.weeks && (D.weeks.weeks || []);
@@ -826,7 +851,8 @@ if (RS) {
     const betRow = b => { const g = G2[b.game] || b; const t = TIERS[b.kind] || {name: b.kind, cls: 'none'};
       return `<li><div><b>${esc(betTxt(b, g))}</b><span class="pill t-${t.cls}">${esc(t.name)}</span>
         <small>${esc(g.away)} @ ${esc(g.home)} · ${esc(score(g))}</small>
-        <small>${b.backtest ? 'closing line, −110' : `${esc(b.src || '')}${b.price != null ? ' ' + px(b.price) : ''}${b.close ? ` · closed ${esc(b.close)}` : ''}${b.clv != null ? ` · CLV ${sg(b.clv)}${Math.abs(b.clv).toFixed(1)}` : ''}`}${(b.why || []).length ? ' · ' + esc(b.why.join('; ')) : ''}</small></div>
+        <small>${b.backtest ? 'closing line, −110' : `${esc(b.src || '')}${b.price != null ? ' ' + px(b.price) : ''}${b.close ? ` · closed ${esc(b.close)}` : ''}${b.clv != null ? ` · CLV ${sg(b.clv)}${Math.abs(b.clv).toFixed(1)}` : ''}`}${(b.why || []).length ? ' · ' + esc(b.why.join('; ')) : ''}</small>
+        ${g.snap && !b.backtest ? `<details class="more-d whyd" data-w="${WHY.push({g: g.snap, f: {...b, live: false}}) - 1}"><summary>Why this bet (as of the lock)</summary><div class="why-box"></div></details>` : ''}</div>
         <div class="r">${pill(b.result)}</div></li>`; };
     const cards = (w.cards || []).map(c => `<li><div><b>${esc(c.name || c.kind)}</b>${c.status === 'paper' ? '<span class="pill t-paper">Paper</span>' : ''}<small>${(c.legs || []).map(esc).join(' · ')}${c.price != null ? ' · ' + px(c.price) : ''}</small></div><div class="r">${pill(c.result)}${c.units != null ? `<span>${sg(c.units)}${Math.abs(c.units).toFixed(1)}u</span>` : ''}</div></li>`).join('');
     const rows = w.games.map(g => `<tr><td>${esc(g.away)} @ ${esc(g.home)}<small>${esc(kick(g))}</small></td>
@@ -888,6 +914,120 @@ if (MXT && (MXT.ideas || []).length) {
 }
 $('clog').innerHTML = (LAB.changelog || []).slice().reverse().slice(0, 12).map(c => `<li><span>${esc(c.date)}</span><span>${esc(c.what)}</span></li>`).join('') || '<li><span></span><span>No changes yet.</span></li>';
 $('lab-note').innerHTML = `<strong>Why it moves slowly.</strong> Of the 100 best-looking rules from 2010–2019, the average one won about 51% on 2020–2025 games it hadn't seen. Most patterns are luck, so a rule only bets real money after replicating on unseen seasons, and probation rules must earn promotion with ${'30'}+ live bets. Edge confidence is the estimated chance a rule's true win rate beats break-even (52.4%; 73.9% for teaser legs), from its prior evidence plus live results.`;
+
+// ---------- "Why this bet": how the model got to the number, why it qualified, and what could go wrong ----------
+function whyHtml(g, f){
+  const S0 = (LAB.strategies || []).find(x => x.id === f.strategy) || {};
+  const S = g.est && g.est[f.strategy] != null ? {...S0, est_rate: g.est[f.strategy]} : S0;   // past weeks: the estimate when it locked
+  const isT = f.market === 'total', home = f.side === 'home';
+  const team = isT ? null : (home ? g.home : g.away), opp = isT ? null : (home ? g.away : g.home);
+  const sg = v => v > 0 ? '+' : v < 0 ? '−' : '';
+  const pc = v => (v * 100).toFixed(1) + '%';
+  const R = (g.matchup && g.matchup.rows) || [];
+  const rk = (off, key) => { const r = R.find(x => x.off === off); return r ? r[key] : null; };
+  const I = ((g.detail || {}).injuries) || {};
+  const outNames = side => { const t = I[side] || {}; const n = [];
+    (t.news || []).filter(x => x.new_out && x.starter).forEach(x => n.push(`${x.name} (${x.pos})`));
+    (t.starters_out || []).forEach(x => n.push(typeof x === 'string' ? x : `${x.name} (${x.pos})`));
+    if (t.ir_counted && t.ir_counted.names) t.ir_counted.names.split('; ').forEach(x => n.push(x.replace(/ \[news\]$/, '')));
+    const seen = new Set(); return n.filter(x => { const k = x.replace(/ \(.*\)$/, ''); if (seen.has(k)) return false; seen.add(k); return true; }); };
+  const sec = (h, body) => body ? `<div class="why-sec"><div class="mini-h">${h}</div>${body}</div>` : '';
+  const li = arr => arr.filter(Boolean).length ? `<ul class="why-list">${arr.filter(Boolean).map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+  // 1. the number
+  let num;
+  const locked = !f.live && f.locked_at, M = f.model != null ? f.model : (isT ? g.total : g.margin);
+  const moved = locked && Math.abs(M - (isT ? g.total : g.margin)) >= 0.3;
+  const lockNote = moved ? ` <span class="why-dim">That's the model's number when the bet locked (${esc(f.locked_at)}); its read now is ${isT ? g.total.toFixed(1) : esc(line(g, g.margin))}, and the breakdown below is the current one.</span>` : '';
+  if (isT) {
+    const under = String(f.side).toUpperCase() === 'UNDER', d = (M - f.line) * (under ? -1 : 1);
+    num = `Model total <b>${M.toFixed(1)}</b>${moved ? '' : ` (${esc(g.away)} ${g.away_pts.toFixed(1)}, ${esc(g.home)} ${g.home_pts.toFixed(1)})`} against a line of <b>${esc(f.line)}</b>: ${d >= 0 ? `${n1(d)} points ${under ? 'under' : 'over'} the market` : `the model actually leans ${under ? 'over' : 'under'} by ${n1(-d)}; this rule picks the side on its own, without the model`}.${g.blend_total != null && !moved ? ` Blended with the market, it's ${g.blend_total.toFixed(1)}.` : ''}${lockNote}`;
+  } else {
+    const mt = home ? M : -M, v = home ? -f.line : f.line, room = mt + v;
+    const res = mt > 0.05 ? `${esc(team)} wins by ${n1(mt)}` : mt < -0.05 ? `${esc(team)} loses by ${n1(-mt)}` : 'a toss-up';
+    const cover = v > 0 ? `${Math.ceil(v) - 1 > 0 ? `can lose by up to ${Math.ceil(v) - 1} and still cover` : 'covers with any win'}${Number.isInteger(v) ? ` (a ${v}-point loss pushes)` : ''}`
+      : `has to win by ${Math.floor(-v) + 1}+${Number.isInteger(v) && v !== 0 ? ` (by exactly ${-v} pushes)` : ''}`;
+    num = `Model: <b>${res}</b>${moved ? '' : ` (projected ${esc(g.away)} ${g.away_pts.toFixed(1)}, ${esc(g.home)} ${g.home_pts.toFixed(1)})`}. At <b>${esc(pickTxt(g, f))}</b>, ${esc(team)} ${cover}. ${room >= 0 ? `The model's projection clears that by <b>${n1(room)}</b> points.` : `The model's projection falls ${n1(-room)} points short of it; this rule picks the side on its own, without the model.`}${g.blend_margin != null && !moved ? ` Blended with the market (how the win probabilities are set), it's ${esc(line(g, g.blend_margin))}.` : ''}${lockNote}`;
+  }
+  // 2. how the model got there
+  let how = '';
+  if (isT) {
+    const adj = Object.entries(g.tparts || {}).filter(([, v]) => Math.abs(v) >= 0.05);
+    const base = g.total - adj.reduce((a, [, v]) => a + v, 0);
+    const wx = (((g.detail || {}).weather || {}).forecast) || {};
+    const lab = k => k === 'Wind' && wx.wind_mph != null ? `Wind (${wx.wind_mph} mph${wx.gust_mph ? `, gusts ${wx.gust_mph}` : ''})` : k;
+    const xo = (o) => rk(o, 'xpl');
+    how = li([`Both offenses against these defenses, at this pace: <b>${base.toFixed(1)}</b>`
+      + (R.length ? ` <span class="why-dim">(explosive plays: ${esc(g.away)} offense #${(xo(g.away) || [])[0] ?? '—'} vs ${esc(g.home)} defense #${(xo(g.away) || [])[1] ?? '—'}; ${esc(g.home)} offense #${(xo(g.home) || [])[0] ?? '—'} vs ${esc(g.away)} defense #${(xo(g.home) || [])[1] ?? '—'})</span>` : '')]
+      .concat(adj.sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).map(([k, v]) => `${esc(lab(k))}: <b>${sg(v)}${n1(v)}</b>`))
+      .concat([`Model total: <b>${g.total.toFixed(1)}</b>`]));
+  } else {
+    const fav = v => v >= 0 ? g.home : g.away, oth = v => v >= 0 ? g.away : g.home;
+    const both = (v, key, label) => { const a = rk(fav(v), key), b = rk(oth(v), key);
+      return a && b ? ` <span class="why-dim">(${esc(fav(v))} ${label} #${a[0]} vs ${esc(oth(v))} defense #${a[1]}; ${esc(oth(v))} ${label} #${b[0]} vs ${esc(fav(v))} defense #${b[1]})</span>` : ''; };
+    const inj = g.inj || {};
+    const expl = (k, v) => {
+      if (k === 'Passing game' || k === 'Pass consistency') return both(v, 'pas', 'pass offense');
+      if (k === 'Running game' || k === 'Rush consistency') return both(v, 'run', 'run game');
+      if (k === 'Home field') return g.neutral ? ' <span class="why-dim">(neutral site)</span>' : ` <span class="why-dim">(${esc(g.home)} at home)</span>`;
+      if (k === 'Rest') return ` <span class="why-dim">(${esc(g.away)} ${g.away_rest ?? '—'} days, ${esc(g.home)} ${g.home_rest ?? '—'} days)</span>`;
+      if (k === 'Offensive injuries') return ` <span class="why-dim">(starters out, snap-weighted: ${esc(g.away)} ${(inj.away_off || 0).toFixed(1)}, ${esc(g.home)} ${(inj.home_off || 0).toFixed(1)})</span>`;
+      if (k === 'Defensive injuries') return ` <span class="why-dim">(starters out, snap-weighted: ${esc(g.away)} ${(inj.away_def || 0).toFixed(1)}, ${esc(g.home)} ${(inj.home_def || 0).toFixed(1)})</span>`;
+      if (k === 'Quarterback change') return ` <span class="why-dim">(${esc(g.away_qb || '—')} for ${esc(g.away)}, ${esc(g.home_qb || '—')} for ${esc(g.home)}, each rated on efficiency and consistency against the quarterback play his team's ratings already assume)</span>`;
+      if (k === 'West-coast early kickoff') return ` <span class="why-dim">(${esc(g.away)} plays an early Eastern kickoff on West-coast time)</span>`;
+      return '';
+    };
+    const top = Object.entries(g.parts || {}).filter(([, v]) => Math.abs(v) >= 0.1).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+    how = `<div class="parts">${partsHtml(g)}</div>` + li(top.slice(0, 5).map(([k, v]) => `${esc(k)}: <b>${esc(fav(v))} +${n1(v)}</b>${expl(k, v)}`));
+  }
+  // 3. why it qualified
+  const ev = S.evidence || {};
+  const evTxt = ev.backtest ? `${ev.backtest} in the backtest (${ev.seasons || ''})` : ev.disc ? `${ev.disc} when found (${ev.disc_seasons}), ${ev.val} on later seasons it never saw (${ev.val_seasons})` : '';
+  const be = beven(f.price);
+  const kindTxt = {
+    best: `<b>Best Bet:</b> the model's edge plus an independent signal pointing the same way${(f.why || []).length ? `: ${f.why.map(esc).join(', ')}` : ''}.`,
+    model: `<b>Play:</b> a ${n1(f.edge || 0)}-point gap between the model and the line, inside the rule's range.`,
+    verify: `<b>Verify first:</b> a ${n1(f.edge || 0)}-point gap. Gaps this big usually mean news the model can't see (an injury, a lineup change), so the edge is only as good as the news check.`,
+    angle: `<b>Angle:</b> a standalone edge the model doesn't contradict${(f.why || []).length ? `: ${f.why.map(esc).join(', ')}` : ''}.`,
+    paper: `<b>Paper:</b> a rule still on probation. Tracked to see whether it holds up; not a bet.`,
+  }[f.kind] || '';
+  const gapRow = !isT && CB && CB.by_gap ? CB.by_gap.find(r => { const [lo, hi] = String(r.gap).replace('+', '–99').split('–').map(Number); return (f.edge || 0) >= lo && (f.edge || 0) < hi; }) : null;
+  const ats = !isT && g.ats && g.ats.side === f.side ? g.ats : null;
+  const TC = isT && LAB.ats && LAB.ats.total_cells ? LAB.ats.total_cells[(f.edge || 0) < 1.5 ? 't_small' : (f.edge || 0) < 4 ? 't_mid' : 't_big'] : null;
+  const qual = li([kindTxt,
+    S.name ? `Rule: ${esc(S.name)}${evTxt ? ` · ${esc(evTxt)}` : ''}${S.live && (S.live.w + S.live.l) ? ` · live ${S.live.w}–${S.live.l}` : ''}` : '',
+    S.note && (f.kind === 'paper' || S.status === 'probation') ? `<span class="why-dim">${esc(S.note)}</span>` : '',
+    S.est_rate != null ? `Estimated win rate <b>${pc(S.est_rate)}</b> vs <b>${pc(be)}</b> needed at ${f.price != null ? px(f.price) : '−110'}: ${Math.abs(S.est_rate - be) < 0.002 ? '<span style="color:var(--warn)">right at break-even</span>' : S.est_rate > be ? '<span style="color:var(--pos)">above break-even</span>' : '<span style="color:var(--warn)">below break-even</span>'}. The estimate starts from the backtest, shrunk toward a coin flip, and moves with live results.` : '',
+    gapRow ? `Spread gaps of ${esc(gapRow.gap)} points: the model's side has covered ${pc(gapRow.cover)} (${gapRow.n} games), and about ${Math.max(0, Math.round(gapRow.k * 100))}% of the gap has shown up in final margins.` : '',
+    TC && (f.edge || 0) > 0 ? `${esc(TC.what)}: the model's side has hit ${pc(TC.raw)} (${TC.n} games since 2020, graded at the closing line).` : '',
+    ats ? `Every-game confidence: ${esc(ats.why || '')} · ${Math.round(ats.conf * 100)}%${ats.n ? ` over ${ats.n} games` : ''} (${esc(ats.tier)}).` : '']);
+  // 4. context
+  const wx = (g.detail || {}).weather || {}, fc = wx.forecast || {}, T = (g.detail || {}).travel || {}, F = (g.detail || {}).form || {};
+  const oa = outNames('away'), oh = outNames('home');
+  const mvLine = !isT && g.first_spread != null && g.spread_line != null && g.first_spread !== g.spread_line ? `Line: opened ${esc(line(g, g.first_spread))}, now ${esc(line(g, g.spread_line))}`
+    : isT && g.first_total != null && g.total_line != null && g.first_total !== g.total_line ? `Total: opened ${g.first_total}, now ${g.total_line}` : '';
+  const ctx = li([
+    `Quarterbacks: ${esc(g.away)} ${esc(g.away_qb || 'TBD')}, ${esc(g.home)} ${esc(g.home_qb || 'TBD')}`,
+    oa.length || oh.length ? `Starters out or newly hurt: ${oa.length ? `${esc(g.away)} ${oa.slice(0, 4).map(esc).join(', ')}` : `${esc(g.away)} none`}; ${oh.length ? `${esc(g.home)} ${oh.slice(0, 4).map(esc).join(', ')}` : `${esc(g.home)} none`}` : '',
+    (g.outdoor || String(wx.roof || '').startsWith('retractable')) && fc.wind_mph != null ? `Weather: ${fc.wind_mph} mph wind${fc.gust_mph ? `, gusts ${fc.gust_mph}` : ''}, ${fc.temp_f ?? '—'}°F, ${fc.precip_pct ?? '—'}% rain · ${esc(wx.roof || '')}` : '',
+    T.miles != null && !T.neutral ? `Travel: ${esc(g.away)} ${T.miles.toLocaleString()} mi${T.tz_shift ? `, ${Math.abs(T.tz_shift)} time zone${Math.abs(T.tz_shift) > 1 ? 's' : ''}` : ''} · rest ${esc(g.away)} ${g.away_rest ?? '—'}, ${esc(g.home)} ${g.home_rest ?? '—'} days` : '',
+    F.away && F.home ? `Form: ${esc(g.away)} ${esc(F.away.record)} (${esc(F.away.ats)} ATS), ${esc(g.home)} ${esc(F.home.record)} (${esc(F.home.ats)} ATS)` : '',
+    mvLine,
+    g.poly_spread != null && !isT ? `Polymarket: ${esc(line(g, g.poly_spread))}` : g.poly_total != null && isT ? `Polymarket total: ${g.poly_total}` : '',
+    !isT && R.length ? `${esc(team)} vs ${esc(opp)} ranks: run game #${(rk(team, 'run') || [])[0] ?? '—'} vs run D #${(rk(team, 'run') || [])[1] ?? '—'}, pass offense #${(rk(team, 'pas') || [])[0] ?? '—'} vs pass D #${(rk(team, 'pas') || [])[1] ?? '—'}` : '']);
+  // 5. what could go wrong
+  const windDriven = (g.tparts || {}).Wind && Math.abs(g.tparts.Wind) >= 1.5 || (f.why || []).some(w => /Wind/.test(w));
+  const big = (f.edge || 0) >= (isT ? 8 : 6);
+  const risks = li([
+    f.kind === 'verify' ? 'Big gaps have paid less than mid-sized ones: check the injury and lineup news before betting.' : '',
+    big ? `This gap (${n1(f.edge)} pts) is unusually large. When the model and the market disagree this much, the market is usually reacting to something real.` : '',
+    windDriven && String(wx.roof || '').startsWith('retractable') ? `Retractable roof: if it's closed, the wind adjustment (${sg((g.tparts || {}).Wind || 0)}${n1((g.tparts || {}).Wind || 0)}) disappears.` : '',
+    windDriven && !String(wx.roof || '').startsWith('retractable') ? 'Wind forecasts change: the pick re-runs with every forecast until it locks.' : '',
+    f.requires_qb ? `Only if ${esc(f.requires_qb.name)} starts.` : '',
+    S.status === 'probation' || f.kind === 'paper' ? 'The rule is still on probation: not enough live results yet to trust it with money.' : '',
+    !isT && ats && ats.tier === 'Low' ? 'The every-game confidence for this kind of pick is close to a coin flip.' : '']);
+  return sec('The number', `<p>${num}</p>`) + sec(isT ? 'How the model got to the total' : 'Where the margin comes from', how)
+    + sec('Why it qualified', qual) + sec('Context', ctx) + sec('What could go wrong', risks);
+}
 
 // ---------- margin breakdown ----------
 function partsHtml(g){
@@ -1479,6 +1619,5 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
-
 
 </html>
