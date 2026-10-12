@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
-
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -482,11 +481,11 @@ section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
     <div class="method">
       <div><h3>Ratings</h3><p>Plays since 2016 feed weighted ridge regressions for dropback EPA, rush EPA, dropback and rush success rate, neutral-situation pass rate and plays per game, each split into offense, defense and home effects. Recent weeks count most (a play's weight halves about every 8 weeks) and last season's plays get a further 16% discount, so this season is about 45% of the picture by Week 5 and 85% by Week 18. Starting QBs get their own term that follows them across teams.</p></div>
       <div><h3>Injuries, wind, travel</h3><p>Injury clusters count starters ruled Out or Doubtful, weighted by their snap share over the last four games, so a starter who just went down counts fully and a long-term absence is already in the ratings. Wind above 10 mph at outdoor games lowers totals. West-coast teams in early Eastern kickoffs have covered more often than the market expects.</p></div>
-      <div><h3>Every-game picks (retired Oct 11, 2026)</h3><p>Through Week 5 of 2026 the model picked a side against the consensus spread in every game. They were retired because picks this close to a good line are coin flips (within 1.5 points: 376–383 since 2018); from Week 6 each game shows the model's number against the line and "no edge". How they worked: Its confidence is the share of picks like it that covered in the walk-forward backtest, shrunk toward 50%. <span class="pill t-high">High</span> means that rate clears break-even at −110 with room; the rest are close to coin flips. Picks lock with the bets and are graded at the locked line. They're picks, not bets: since Oct 10 spread bets are on paper (High picks went 131–130 in 2023–2025), and they no longer feed paid parlays.</p></div>
+      <div><h3>Every-game picks (retired Oct 11, 2026)</h3><p>Through Week 5 of 2026 the model picked a side against the consensus spread in every game. They were retired because picks this close to a good line are coin flips (within 1.5 points: 376–383 since 2018); from Week 6 each game card shows that game's actual bets (or "none yet") instead. How they worked: Its confidence is the share of picks like it that covered in the walk-forward backtest, shrunk toward 50%. <span class="pill t-high">High</span> means that rate clears break-even at −110 with room; the rest are close to coin flips. Picks lock with the bets and are graded at the locked line. They're picks, not bets: since Oct 10 spread bets are on paper (High picks went 131–130 in 2023–2025), and they no longer feed paid parlays.</p></div>
       <div><h3>Parlay builder</h3><p>Every run rebuilds 2- and 3-leg parlays from the highest-confidence legs of any type (an estimated win rate of 53%+: active rules and totals whose record clears that bar; High every-game spread picks were legs until they were retired Oct 11) and 2- and 3-team teasers from underdogs at +1.5/+2.5, only when the legs’ estimated win rates make the parlay worth more than it costs. A spread + big-total parlay is tracked on paper to test whether the model’s biggest total gaps belong in parlays. The card updates every run and locks once, with the final picks Saturday night; each type keeps its own record. Types that lose out of sample stay on paper.</p></div>
       <div><h3>Tiers</h3><p><span class="pill t-best">Best Bet</span> a model edge that an independent edge agrees with. <span class="pill t-lean">Play</span> total gap 4–8 where injuries move the total 1+ point toward the bet (100–65 since 2018; gaps from team ratings alone went 110–111, so they're on paper). Spread gaps of 1.5–3 went 121–130 in 2023–2025, so since Oct 10 they're graded on paper until live results earn them back (they still become Best Bets when an independent edge agrees). <span class="pill t-angle">Angle</span> a standalone edge (wind, injury cluster, travel) the model doesn't contradict. <span class="pill t-verify">Verify</span> big gaps, which usually mean news the model can't see.</p></div>
       <div><h3>Self-learning</h3><p>Every run archives lines, Polymarket prices, projections, starters, forecasts and injury reads. Weekly, the lab re-tests model settings walk-forward and promotes one only if it beats the champion by a statistically significant margin. A discovery engine searches thousands of candidate rules, keeps the few that replicate on later seasons, and tracks them on paper. A live monitor promotes or retires rules from their real results.</p></div>
-      <div><h3>Timing and grading</h3><p>Picks stay live all week: every run (Sunday night, Monday, Tuesday, Thursday, Friday and Saturday morning) re-projects every game with the latest lines, injury reports, quarterback news and forecasts, so bets can appear, change or drop out. Each game locks once, at the last run before it: Saturday at 9:50 PM PT, right after the evening line capture, for Sunday and Monday games; the morning of the game for Thursday, Friday and Saturday games. If the Saturday-night lines don't arrive, Sunday's 5:50 AM run locks instead. Bets are graded at the locked line, along with closing-line value (how far the market moved by kickoff), and every run's picks are archived.</p></div>
+      <div><h3>Timing and grading</h3><p><b>Two betting windows.</b> The early-week card locks Sunday at 9:50 PM PT, right after next week's lines open: bet it that night or first thing Monday, because its edge is getting the number before the market moves toward the model. The final card locks Saturday at 9:50 PM PT, after the Friday injury reports: bet it Saturday night or Sunday morning, because its edge (injury-driven totals, angles) needs those reports. Thursday games lock that morning. In between, the page shows live candidates that can change or disappear; only locked bets count and get stakes. Picks stay live all week: every run (Sunday night, Monday, Tuesday, Thursday, Friday and Saturday morning) re-projects every game with the latest lines, injury reports, quarterback news and forecasts, so bets can appear, change or drop out. Each game locks once, at the last run before it: Saturday at 9:50 PM PT, right after the evening line capture, for Sunday and Monday games; the morning of the game for Thursday, Friday and Saturday games. If the Saturday-night lines don't arrive, Sunday's 5:50 AM run locks instead. Bets are graded at the locked line, along with closing-line value (how far the market moved by kickoff), and every run's picks are archived.</p></div>
     </div>
   </section>
 
@@ -653,8 +652,29 @@ function atsChange(g, o){
   if (c.team === o.team && Math.abs(c.v - o.v) < 0.5 && c.tier === o.tier) return '';
   return `<small style="color:var(--warn)">Now: ${esc(atsLine(c))} · ${c.tier} ${Math.round(c.conf * 100)}% (the locked pick above is what gets graded)</small>`;
 }
+// from Week 6 the card's top bar shows the game's real bets (locked or live) with their bankroll stake, instead of "no edge"
+const REALK = ['early', 'best', 'model', 'angle', 'verify'];
+function stakeOf(g, f){
+  const BK = (D.lab || {}).bankroll || {}, wk = (BK.weeks || {})[`${D.season}-${String(D.week).padStart(2, '0')}`] || {};
+  const pv = ((BK.preview || {}).week === D.week ? (BK.preview || {}).bets : []) || [];
+  const same = b => b.game_id === g.game_id && b.market === f.market && String(b.side).toUpperCase() === String(f.side).toUpperCase();
+  const b = (wk.bets || []).find(same) || pv.find(same), sk = (wk.skipped || []).find(same);
+  return b ? {stake: b.stake, preview: !(wk.bets || []).includes(b)} : sk ? {skip: sk.why} : null;
+}
+function betBar(g){
+  const fl = flagsOf(g).filter(f => REALK.includes(f.kind));
+  const ml = g.spread_line != null && g.margin != null ? `Model ${esc(line(g, g.margin))} vs line ${esc(line(g, g.spread_line))}` : '';
+  if (!fl.length) return `<div class="pickbar"><div><span class="eyebrow">Bets in this game</span><br><b>None${D.locked_at ? '' : ' yet'}</b>
+    <small>${ml}${ml ? ' · ' : ''}${D.locked_at ? 'no rule fired at the lock' : `bets appear only when a rule with a proven record fires: the early card (Sunday night) or the final card (${esc(D.lock_plan || 'Saturday 9:50 PM')})`}</small></div></div>`;
+  const row = f => { const st = stakeOf(g, f);
+    const when = f.live ? `live · locks ${f.kind === 'early' ? 'with the early card' : esc(D.lock_plan || 'Saturday night')}` : `locked ${esc(f.locked_at || '')}`;
+    const money = !st ? '' : st.skip ? ` · <span style="color:var(--warn)">not staked: ${esc(st.skip)}</span>` : ` · <b>$${st.stake}</b>${st.preview ? ' if it locks now' : ''} from the bankroll`;
+    return `<div style="margin-top:2px"><b>${esc(pickTxt(g, f))}</b> <span class="pill t-${TIERS[f.kind].cls}">${TIERS[f.kind].name}</span><small>${esc(f.src || '')}${f.price != null ? ' ' + px(f.price) : ''} · ${when}${money}</small></div>`; };
+  return `<div class="pickbar hi"><div><span class="eyebrow">${fl.length} bet${fl.length > 1 ? 's' : ''} in this game</span>${fl.map(row).join('')}
+    <small>${ml}</small></div></div>`;
+}
 function pickBar(g){
-  const o = atsOfficial(g); if (!o) return EG_OFF && g.spread_line != null && g.margin != null ? noEdge(g) : '';
+  const o = atsOfficial(g); if (!o) return EG_OFF ? betBar(g) : '';
   const qb = g.ats && g.ats.qb_flip ? `<small style="color:var(--warn)">${esc(g.ats.qb_flip)}</small>` : '';
   return `<div class="pickbar${o.tier === 'High' ? ' hi' : ''}"><div><span class="eyebrow">Pick vs the spread${o.locked ? ' · locked' : ''}</span><br><b>${esc(atsLine(o))}</b>
     <small>Model ${esc(line(g, g.margin))} vs line ${esc(line(g, o.line))} · ${esc(atsWhy(o))}</small>${atsChange(g, o)}${qb}</div>
@@ -665,8 +685,9 @@ if (ATS && EG_OFF && !G.some(g => atsOfficial(g))) {
   $('picks-h').textContent = 'Spread: model vs line';
   $('picks-note').textContent = `Every-game picks retired ${EGP.since || 'Oct 11, 2026'}`;
   $('picks-sub').textContent = EGP.reason || '';
-  $('picks').innerHTML = G.filter(g => g.spread_line != null && g.margin != null).map(g => `<div class="pk-row"><div class="what"><span class="gm">${g.away} @ ${g.home} · ${esc(kick(g))}</span><br>
-      <b>No edge</b><small>Model ${esc(line(g, g.margin))} vs line ${esc(line(g, g.spread_line))}</small></div></div>`).join('');
+  $('picks').innerHTML = G.filter(g => g.spread_line != null && g.margin != null).map(g => { const fl = flagsOf(g).filter(f => REALK.includes(f.kind));
+    return `<div class="pk-row"><div class="what"><span class="gm">${g.away} @ ${g.home} · ${esc(kick(g))}</span><br>
+      <b>${fl.length ? fl.map(f => esc(pickTxt(g, f)) + ` <span class="pill t-${TIERS[f.kind].cls}">${TIERS[f.kind].name}</span>`).join(' · ') : 'No bet'}</b><small>Model ${esc(line(g, g.margin))} vs line ${esc(line(g, g.spread_line))}</small></div></div>`; }).join('');
   $('picks-rec').innerHTML = `<strong>Record while they were picks:</strong> backtest ${esc(B.seasons || '')}, High ${rr(B.High)} · Low ${rr(B.Low)} · all ${rr(B.all)}. Spread bets that do clear a rule (Best Bets, angles) still appear above, graded on paper under the spread policy.`;
 } else if (ATS) {
   const rows = G.map(g => ({g, o: atsOfficial(g)})).filter(x => x.o);
@@ -1791,6 +1812,5 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
-
 
 </html>
