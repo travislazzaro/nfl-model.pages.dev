@@ -1,0 +1,9 @@
+// Cloudflare Worker for the public dashboard: static page + family pick'em API (worker/index.js).
+{
+  "name": "nfl-model-pages-dev",
+  "main": "worker/index.js",
+  "compatibility_date": "2025-09-01",
+  "assets": { "directory": "./", "binding": "ASSETS" },
+  "durable_objects": { "bindings": [ { "name": "PICKS", "class_name": "PickStore" } ] },
+  "migrations": [ { "tag": "v1", "new_sqlite_classes": ["PickStore"] } ]
+}
