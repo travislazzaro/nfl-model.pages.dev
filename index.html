@@ -25,6 +25,7 @@
   --pos:#5CC48D; --pos-soft:#173226; --neg:#F07A6C; --neg-soft:#3A1E1B; --warn:#F0AE52; --warn-soft:#3A2A13;
   --chip:#232C27; color-scheme:dark}
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%}  /* stop phone browsers from auto-enlarging text in wide, sideways-scrolling tables */
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
 .wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:20px 56px;display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
 h1,h2,h3{font-family:var(--f-display);font-weight:700;letter-spacing:.01em;margin:0;text-wrap:balance;line-height:1.05}
@@ -215,6 +216,9 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
 .reg{border-collapse:collapse;width:100%;min-width:820px;font-size:13px}
 .reg th,.reg td{padding:8px 10px;border-bottom:1px solid var(--rule);text-align:left;vertical-align:top}
 .reg th{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.reg td:first-child{min-width:210px}
+/* phones: each rule becomes a stacked card (no sideways scrolling) */
+@media (max-width:640px){.reg{min-width:0}.reg thead{display:none}.reg tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px 10px;border-bottom:1px solid var(--rule)}.reg td{display:block;border:0;padding:0}.reg td:first-child{min-width:0;font-weight:600}.reg td:nth-child(2){justify-self:end}.reg td[data-l]{grid-column:1/-1;white-space:normal;font-size:12.5px}.reg td[data-l]::before{content:attr(data-l);display:block;font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}.reg tr td[data-l]{white-space:normal}.reg tr td[data-l] small{display:block;margin:0}.reg tr td[data-l="Live"]{grid-column:1}.reg tr td[data-l="Edge confidence"]{grid-column:2;text-align:right}.reg .meter{vertical-align:middle}}
 .reg td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .reg td small{display:block;color:var(--muted);font-size:11.5px}
 .st{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap}
@@ -1015,9 +1019,9 @@ $('reg').innerHTML = `<thead><tr><th>Rule</th><th>Status</th><th>Evidence</th><t
     const lv = x.live || {w:0, l:0};
     const pe = x.p_edge ?? 0.5;
     return `<tr><td>${esc(x.name)}<small>${esc(x.id)}${x.source === 'discovered' ? ' · found by the discovery engine' : x.source === 'seed' ? ' · seed angle' : x.source === 'tracked' ? ' · tracked idea (roster changes)' : ' · built in'}</small></td>
-      <td><span class="st st-${x.status}">${x.status}</span></td><td class="n">${evTxt}</td>
-      <td class="n">${lv.w}–${lv.l}${lv.clv != null ? `<small>CLV ${lv.clv >= 0 ? '+' : '−'}${Math.abs(lv.clv).toFixed(1)}</small>` : ''}</td>
-      <td class="n">${Math.round(pe * 100)}%<span class="meter"><i style="width:${Math.round(pe * 100)}%"></i></span><small>est. win rate ${(x.est_rate * 100 || 50).toFixed(1)}%</small></td></tr>`;
+      <td><span class="st st-${x.status}">${x.status}</span></td><td class="n" data-l="Evidence">${evTxt}</td>
+      <td class="n" data-l="Live">${lv.w}–${lv.l}${lv.clv != null ? `<small>CLV ${lv.clv >= 0 ? '+' : '−'}${Math.abs(lv.clv).toFixed(1)}</small>` : ''}</td>
+      <td class="n" data-l="Edge confidence">${Math.round(pe * 100)}%<span class="meter"><i style="width:${Math.round(pe * 100)}%"></i></span><small>est. win rate ${(x.est_rate * 100 || 50).toFixed(1)}%</small></td></tr>`;
   }).join('') + '</tbody>';
 // ---------- roster-change tracker: paper rules (bets) + model challengers (accuracy) ----------
 {
