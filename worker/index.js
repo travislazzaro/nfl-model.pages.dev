@@ -11,11 +11,31 @@ const json = (obj, status = 200) => new Response(JSON.stringify(obj), { status, 
 export class PickStore extends DurableObject {
   async fetch(request) {
     const url = new URL(request.url);
+    // one-time fix (Oct 15, 2026): Ronnie tapped a pick on Owen's Week 6 form by accident. Clear Owen's Week 6 record
+    // once, and only while it still holds at most one game (so nothing Owen picked himself is ever removed).
+    if (!(await this.ctx.storage.get("fix:owen-2026-06"))) {
+      const rec = await this.ctx.storage.get("p:2026-06-Owen");
+      if (!rec || Object.keys(rec.picks || {}).length <= 1) await this.ctx.storage.delete("p:2026-06-Owen");
+      await this.ctx.storage.put("fix:owen-2026-06", new Date().toISOString());
+    }
     if (request.method === "GET" && url.pathname === "/api/picks") {
       const all = await this.ctx.storage.list({ prefix: "p:" });
       const picks = {};
       for (const [k, v] of all) picks[k.slice(2)] = v;
       return json({ picks, now: new Date().toISOString() });
+    }
+    // clear one game's picks (or a whole week's when gid is omitted) for one person; the form's "Clear this game" uses it
+    if (request.method === "POST" && url.pathname === "/api/clear") {
+      let b;
+      try { b = await request.json(); } catch { return json({ error: "bad json" }, 400); }
+      const { player, week, gid, ko } = b || {};
+      if (!PLAYERS.includes(player) || !/^\d{4}-\d{2}$/.test(week || "")) return json({ error: "bad request" }, 400);
+      if (ko && !Number.isNaN(Date.parse(ko)) && new Date() >= new Date(ko)) return json({ error: "locked" }, 409);
+      const id = `${week}-${player}`;
+      const rec = await this.ctx.storage.get("p:" + id);
+      if (rec && gid) { delete rec.picks[gid]; await this.ctx.storage.put("p:" + id, rec); }
+      else if (rec && !gid) await this.ctx.storage.delete("p:" + id);
+      return json({ ok: true, id, record: gid ? (rec || { player, week, picks: {} }) : null });
     }
     if (request.method === "POST" && url.pathname === "/api/pick") {
       let b;

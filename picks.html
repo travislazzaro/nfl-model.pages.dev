@@ -134,11 +134,18 @@ function game(){
       <div class="q"><span class="lbl">Spread: who covers?</span><div class="opts">${opt('s', 'away', side(e, 'away'), e.away + ' (away)')}${opt('s', 'home', side(e, 'home'), e.home + ' (home)')}</div></div>
       <div class="q"><span class="lbl">Total points: ${e.total}</span><div class="opts">${opt('t', 'over', 'Over ' + e.total, 'more than ' + e.total)}${opt('t', 'under', 'Under ' + e.total, 'fewer than ' + e.total)}</div></div>
       <p class="saved" id="saved"></p>
+      ${p.s || p.t ? '<p class="saved"><button type="button" class="link" id="clear" style="background:none;border:0;padding:0;font:inherit;color:var(--muted);text-decoration:underline;cursor:pointer">Clear this game&#8217;s picks</button></p>' : ''}
       <div class="nav"><button type="button" class="btn ghost" id="back">Back</button><button type="button" class="btn" id="next"${p.s && p.t ? '' : ' disabled'}>${nextIdx() < 0 ? 'Review picks' : 'Next game'}</button></div>
     </div>`, true);
   app.querySelectorAll('.opt').forEach(b => b.onclick = () => choose(gid, e, b.dataset.k, b.dataset.v));
   document.getElementById('back').onclick = () => { const j = prevIdx(); if (j < 0) intro(); else { i = j; game(); } };
   document.getElementById('next').onclick = advance;
+  const cl = document.getElementById('clear');
+  if (cl) cl.onclick = async () => {
+    const id = `${wk}-${me}`, rec = JSON.parse(JSON.stringify(picks[id] || {player: me, week: wk, picks: {}}));
+    delete rec.picks[gid]; picks[id] = rec; clearTimeout(auto); game();
+    try { await fetch('/api/clear', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({player: me, week: wk, gid, ko: koDate(e.kickoff).toISOString()})}); } catch (err) {}
+  };
 }
 const nextIdx = () => { for (let j = i + 1; j < games.length; j++) if (!started(games[j][1])) return j; return -1; };
 const prevIdx = () => { for (let j = i - 1; j >= 0; j--) if (!started(games[j][1])) return j; return -1; };
