@@ -38,9 +38,24 @@ export class PickStore extends DurableObject {
   }
 }
 
+// The week's games, frozen lines, the model's picks and finals: read from the data the dashboard page embeds
+// (pickem.py -> lab/pickem.json -> the page), so the pick form never needs its own copy.
+async function slate(request, env) {
+  const page = await env.ASSETS.fetch(new Request(new URL("/", request.url)));
+  const html = await page.text();
+  const tag = '<script id="data" type="application/json">';
+  const i = html.indexOf(tag), j = i < 0 ? -1 : html.indexOf("</script>", i);
+  if (i < 0 || j < 0) return json({ error: "no data" }, 503);
+  try {
+    const d = JSON.parse(html.slice(i + tag.length, j));
+    return json({ season: d.season, week: d.week, updated: d.updated, pickem: d.pickem });
+  } catch { return json({ error: "bad data" }, 503); }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/api/slate") return slate(request, env);
     if (url.pathname.startsWith("/api/")) {
       if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
       const stub = env.PICKS.get(env.PICKS.idFromName("family"));
