@@ -69,6 +69,23 @@ section{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 /* game cards */
 .games{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,480px),1fr));gap:14px}
 .game{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:14px;display:grid;gap:12px;min-width:0}
+.game.is-bet{border-color:var(--pos);box-shadow:inset 4px 0 0 var(--pos)}
+.g-status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:-14px -14px 0;padding:8px 14px;border-radius:10px 10px 0 0;font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:var(--chip);border-bottom:1px solid var(--rule)}
+.g-status.bet{background:var(--pos-soft);color:var(--pos)}
+.g-status b{font:700 15px var(--f-display);letter-spacing:.02em;text-transform:none;color:var(--ink)}
+.g-status .tag{padding:2px 7px;border-radius:4px;background:var(--pos);color:var(--panel)}
+.g-status .tag.no{background:transparent;border:1px solid var(--muted);color:var(--muted)}
+.slate-idx{display:grid;gap:0;border:1px solid var(--rule);border-radius:10px;background:var(--panel);overflow:hidden;margin-bottom:12px}
+.slate-idx a{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--rule);color:var(--ink);text-decoration:none}
+.slate-idx a:last-child{border-bottom:0}
+.slate-idx a.bet{box-shadow:inset 4px 0 0 var(--pos);background:var(--pos-soft)}
+.slate-idx .m{font:700 17px var(--f-display);min-width:86px}
+.slate-idx .k{font-size:12px;color:var(--muted)}
+.slate-idx .r{font-size:13px;text-align:right}
+.slate-idx .r .tag{display:inline-block;font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;margin-left:6px;background:var(--pos);color:var(--panel)}
+.slate-idx .r .tag.no{background:transparent;border:1px solid var(--muted);color:var(--muted)}
+.slate-idx .sum{padding:8px 12px;font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule)}
+@media (max-width:460px){.slate-idx a{grid-template-columns:1fr auto}.slate-idx .k{grid-column:1;grid-row:2}.slate-idx .r{grid-row:1/3;grid-column:2}}
 .g-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .g-match{font-family:var(--f-display);font-size:28px;font-weight:700;line-height:1}
 .g-match .at{color:var(--muted);font-weight:500;font-size:20px;margin:0 4px}
@@ -477,6 +494,20 @@ body.pk-only .wrap > section:not(#pickem),body.pk-only .jump,body.pk-only header
     <div id="edges"></div>
   </section>
 
+  <section id="full-slate" data-nav="Slate" aria-labelledby="slate-h">
+    <div class="sec-head">
+      <h2 id="slate-h">Full slate</h2>
+      <div class="seg" role="group" aria-label="Filter games">
+        <button type="button" id="f-all" aria-pressed="true" data-f="all">All games</button>
+        <button type="button" id="f-flag" aria-pressed="false" data-f="flag">Bets only</button>
+      </div>
+    </div>
+    <div class="slate-idx" id="slate-idx"></div>
+    <p class="sub" id="slate-past" style="font-size:13px" hidden></p>
+    <div class="games" id="games"></div>
+  </section>
+
+
   <section id="bankroll" data-nav="Bankroll" aria-labelledby="bank-h" hidden>
     <div class="sec-head"><h2 id="bank-h">Bankroll</h2><span class="eyebrow" id="bank-note">Experimental · tracked, not real money</span></div>
     <div id="bank"></div>
@@ -540,18 +571,6 @@ body.pk-only .wrap > section:not(#pickem),body.pk-only .jump,body.pk-only header
     <div class="tier-h"><h3>What changed</h3><span>Most recent first</span></div>
     <ul class="clog" id="clog"></ul>
     <p class="callout" id="lab-note"></p>
-  </section>
-
-  <section id="full-slate" data-nav="Slate" aria-labelledby="slate-h">
-    <div class="sec-head">
-      <h2 id="slate-h">Full slate</h2>
-      <div class="seg" role="group" aria-label="Filter games">
-        <button type="button" id="f-all" aria-pressed="true" data-f="all">All games</button>
-        <button type="button" id="f-flag" aria-pressed="false" data-f="flag">With bets</button>
-      </div>
-    </div>
-    <p class="sub" id="slate-past" style="font-size:13px" hidden></p>
-    <div class="games" id="games"></div>
   </section>
 
   <section id="team-ratings" data-nav="Ratings" aria-labelledby="rate-h">
@@ -778,6 +797,7 @@ function stakeOf(g, f){
 function betBar(g){
   const fl = flagsOf(g).filter(f => REALK.includes(f.kind));
   const ml = g.spread_line != null && g.margin != null ? `Model ${esc(line(g, g.margin))} vs line ${esc(line(g, g.spread_line))}` : '';
+  if (!fl.length && document.getElementById('slate-idx')) return '';   // the card's top strip already says "No bet"
   if (!fl.length) return `<div class="pickbar"><div><span class="eyebrow">Bets in this game</span><br><b>None${D.locked_at ? '' : ' yet'}</b>
     <small>${D.locked_at ? 'no rule fired at the lock' : `bets appear only when a rule with a proven record fires: the early card (Sunday night) or the final card (${esc(D.lock_plan || 'Saturday 9:50 PM')})`}</small></div></div>`;
   const row = f => { const st = stakeOf(g, f);
@@ -1622,12 +1642,32 @@ function mxHtml(g){
   return `<details class="more-d" id="m-${esc(g.game_id)}"><summary>Matchups: unit vs unit</summary><div class="split" style="margin-top:6px">${M.rows.map(tbl).join('')}</div>
     <p class="sub" style="font-size:12px;margin-top:6px">Ranks 1–32, opponent-adjusted (1 = best offense or best defense). Green = in the offense's favor. The model already pits each offense against the matching defense, so a mismatch is in the projection; the research found it isn't worth more than that by itself. ${LAB.matchup ? '<a href="#mx-h" data-jump="mx-h" style="color:var(--ink)">Matchup ideas tracker →</a>' : ''}</p></details>`;
 }
+// bet / no-bet strip at the top of every game card, and the slate index (Ronnie, Oct 15)
+function statusStrip(g, real, fl){
+  const passed = fl.filter(f => REALK.includes(f.kind) && (stakeOf(g, f) || {}).skip);
+  if (real.length) return `<div class="g-status bet"><span class="tag">Bet${real.length > 1 ? 's · ' + real.length : ''}</span><b>${real.map(f => esc(pickTxt(g, f))).join(' · ')}</b>${real.some(f => f.live) ? '<span>live until the lock</span>' : ''}</div>`;
+  if (passed.length) return `<div class="g-status"><span class="tag no">No bet</span>${passed.map(f => esc(pickTxt(g, f))).join(' · ')} qualified but wasn't staked: ${esc(stakeOf(g, passed[0]).skip)}</div>`;
+  const paper = fl.some(f => f.kind === 'paper');
+  return `<div class="g-status"><span class="tag no">No bet${D.locked_at ? '' : ' yet'}</span>${paper ? 'paper tracking only' : 'info only'}${D.locked_at ? '' : ` · final card locks ${esc(D.lock_plan || 'Saturday 9:50 PM PT')}`}</div>`;
+}
+// a real bet = a rule that fired and got (or will get) money; a locked pick the bankroll passed on (price moved) is not
+const realBets = (g, fl) => (fl || flagsOf(g)).filter(f => REALK.includes(f.kind) && !(stakeOf(g, f) || {}).skip);
+function slateIndex(){
+  const rows = G.map(g => ({g, real: realBets(g)}));
+  const nb = rows.filter(r => r.real.length).length;
+  $('slate-idx').innerHTML = `<div class="sum">${G.length} games · ${nb} with bets · ${G.length - nb} no bet · tap a game for its breakdown</div>` +
+    rows.map(({g, real}) => `<a href="#g-${esc(g.game_id)}" data-g="${esc(g.game_id)}" class="${real.length ? 'bet' : ''}"><span class="m">${g.away} @ ${g.home}</span><span class="k">${esc(kick(g))}</span>
+      <span class="r">${real.length ? real.map(f => esc(pickTxt(g, f))).join('<br>') + '<span class="tag">Bet</span>' : `<span style="color:var(--muted)">Model ${esc(line(g, g.margin))}</span><span class="tag no">No bet</span>`}</span></a>`).join('');
+  $('slate-idx').addEventListener('click', e => { const a = e.target.closest('a[data-g]'); if (!a) return; e.preventDefault();
+    const el = document.getElementById('g-' + a.dataset.g); if (el) { el.hidden = false; el.scrollIntoView({block: 'start', behavior: 'smooth'}); } });
+}
 function card(g){
   const fl = flagsOf(g);
   const favHome = g.p_home >= 0.5;
   const moved = g.first_spread != null && g.spread_line != null && g.first_spread !== g.spread_line ? `<span class="mv">opened ${line(g, g.first_spread)}</span>` : '';
   const movedT = g.first_total != null && g.total_line != null && g.first_total !== g.total_line ? `<span class="mv">opened ${g.first_total}</span>` : '';
-  const pills = mkt => fl.filter(f => f.market === mkt).map(f => `<span class="pill t-${TIERS[f.kind].cls}">${TIERS[f.kind].name} · ${esc(f.market === 'total' ? (f.side === 'OVER' ? 'Over ' : 'Under ') + f.line : sideLine(g, f.side, f.line))}${f.market !== 'teaser' && f.src ? ' · ' + esc(f.src) + (f.price != null ? ' ' + px(f.price) : '') : ''}</span>`).join('');
+  const pills = mkt => [...new Set(fl.filter(f => f.market === mkt).map(f => `<span class="pill t-${TIERS[f.kind].cls}">${TIERS[f.kind].name} · ${esc(f.market === 'total' ? (f.side === 'OVER' ? 'Over ' : 'Under ') + f.line : sideLine(g, f.side, f.line))}${f.market !== 'teaser' && f.src ? ' · ' + esc(f.src) + (f.price != null ? ' ' + px(f.price) : '') : ''}</span>`))].join('');
+  const real = realBets(g, fl);
   const chips = [];
   if (g.west_early) chips.push(`<span class="chip good">${g.away}: West-coast early kickoff</span>`);
   if (g.outdoor && g.wind >= 15) chips.push(`<span class="chip warn">Wind ${g.wind} mph</span>`);
@@ -1638,7 +1678,8 @@ function card(g){
   if (backs.length) chips.push(`<span class="chip good" title="${esc(backs.join(', '))}">Back: ${backs.map(b => esc(b.split(' (')[0])).join(', ')}</span>`);
   (g.split || []).length && chips.push(`<span class="chip">Polymarket split</span>`);
   mxMismatch(g).forEach(t => chips.push(`<span class="chip" title="Opponent-adjusted unit ranks (1 = best of 32)">${esc(t)}</span>`));
-  return `<article class="game" data-flag="${fl.length > 0}">
+  return `<article class="game${real.length ? ' is-bet' : ''}" id="g-${esc(g.game_id)}" data-flag="${real.length > 0}">
+    ${statusStrip(g, real, fl)}
     <div class="g-top">
       <div class="g-match">${g.away}<span class="at">@</span>${g.home}</div>
       <div class="g-meta">${esc(kick(g))}${g.neutral ? '<br>Neutral site' : ''}<br>${esc(g.stadium || '')}</div>
@@ -1684,6 +1725,7 @@ function card(g){
   </article>`;
 }
 $('games').innerHTML = G.map(card).join('');
+try { slateIndex(); } catch (e) { console.log('slate index', e); }
 document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
   const only = b.dataset.f === 'flag';
