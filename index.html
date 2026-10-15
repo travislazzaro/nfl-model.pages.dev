@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
-
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -243,6 +242,8 @@ details.more-d summary:focus-visible{outline:2px solid var(--accent);outline-off
 .cmeter s{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);text-decoration:none}
 .pickbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 12px;border:1px solid var(--rule);border-radius:8px;padding:8px 10px}
 .pickbar.hi{border-color:var(--pos)}
+.pickbar.info{border-style:dashed;margin-bottom:8px}
+.pickbar .lean-t{font-family:var(--f-display);font-size:16px;font-weight:600;color:var(--muted)}
 .pickbar > div{min-width:0}
 .pickbar b{font-family:var(--f-display);font-size:20px;font-weight:600}
 .pickbar small{display:block;font-size:12px;color:var(--muted)}
@@ -774,7 +775,7 @@ function betBar(g){
   const fl = flagsOf(g).filter(f => REALK.includes(f.kind));
   const ml = g.spread_line != null && g.margin != null ? `Model ${esc(line(g, g.margin))} vs line ${esc(line(g, g.spread_line))}` : '';
   if (!fl.length) return `<div class="pickbar"><div><span class="eyebrow">Bets in this game</span><br><b>None${D.locked_at ? '' : ' yet'}</b>
-    <small>${ml}${ml ? ' · ' : ''}${D.locked_at ? 'no rule fired at the lock' : `bets appear only when a rule with a proven record fires: the early card (Sunday night) or the final card (${esc(D.lock_plan || 'Saturday 9:50 PM')})`}</small></div></div>`;
+    <small>${D.locked_at ? 'no rule fired at the lock' : `bets appear only when a rule with a proven record fires: the early card (Sunday night) or the final card (${esc(D.lock_plan || 'Saturday 9:50 PM')})`}</small></div></div>`;
   const row = f => { const st = stakeOf(g, f);
     const when = f.live ? `live · locks ${(f.kind === 'early' || f.early) ? 'with the early card' : esc(D.lock_plan || 'Saturday night')}` : `locked ${esc(f.locked_at || '')}`;
     const money = !st ? '' : st.skip ? ` · <span style="color:var(--warn)">not staked: ${esc(st.skip)}</span>` : ` · <b>$${st.stake}</b>${st.preview ? ' if it locks now' : ''} from the bankroll`;
@@ -782,8 +783,31 @@ function betBar(g){
   return `<div class="pickbar hi"><div><span class="eyebrow">${fl.length} bet${fl.length > 1 ? 's' : ''} in this game</span>${fl.map(row).join('')}
     <small>${ml}</small></div></div>`;
 }
+// model lean (info, not a bet): which side of the spread and total the projection takes, with how often leans like it
+// have covered since 2020 — shown on every game from Week 6 (Ronnie, Oct 15), never graded, staked or turned into a bet
+function leanBar(g){
+  if (g.spread_line == null || g.margin == null) return '';
+  const L = g.spread_line, gap = g.margin - L;
+  const side = gap !== 0 ? (gap > 0 ? 'home' : 'away') : (L < 0 ? 'home' : 'away');
+  const dog = (side === 'home' && L < 0) || (side === 'away' && L > 0), ga = Math.abs(gap);
+  const cellK = ga < 1.5 ? 'small' : ga < 5 ? (dog ? 'mid_dog' : 'mid_fav') : 'big';
+  const c = ((ATS || {}).cells || {})[cellK] || {};
+  const sl = atsLine({team: g[side], v: side === 'home' ? -L : L});
+  let tl = '', tsub = '';
+  if (g.total_line != null && g.total != null) {
+    const tg = g.total - g.total_line, ta = Math.abs(tg);
+    const tc = ((ATS || {}).total_cells || {})[ta < 1.5 ? 't_small' : ta < 4 ? 't_mid' : 't_big'] || {};
+    tl = tg === 0 ? `Total ${n1(g.total_line)} even` : `${tg > 0 ? 'Over' : 'Under'} ${n1(g.total_line)}`;
+    tsub = `<small>Total: model ${n1(g.total)} vs ${n1(g.total_line)} (${tg > 0 ? '+' : '−'}${n1(ta)})${tc.rate != null ? ` · totals leans this far off have hit ${(tc.rate * 100).toFixed(1)}% since 2020` : ''}</small>`;
+  }
+  const pct = c.rate != null ? `${(c.rate * 100).toFixed(1)}%` : '';
+  return `<div class="pickbar info"><div><span class="eyebrow">Model lean · info, not a bet</span><br><b>${esc(sl)}</b>${tl ? ` <span class="lean-t">· ${esc(tl)}</span>` : ''}
+    <small>Spread: model ${esc(line(g, g.margin))} vs line ${esc(line(g, L))} (${n1(ga)} pt${n1(ga) === '1' ? '' : 's'}) · ${esc(c.what || '')}${pct ? ` · leans like this covered ${pct} since 2020` : ''}</small>${tsub}
+    <small>Break-even at −110 is 52.4%. Not graded or staked; only rules with a proven record become bets.</small></div>
+    <div style="display:grid;justify-items:end;gap:4px"><span class="pill t-paper">Info${pct ? ' · ' + pct : ''}</span></div></div>`;
+}
 function pickBar(g){
-  const o = atsOfficial(g); if (!o) return EG_OFF ? betBar(g) : '';
+  const o = atsOfficial(g); if (!o) return EG_OFF ? leanBar(g) + betBar(g) : '';
   const qb = g.ats && g.ats.qb_flip ? `<small style="color:var(--warn)">${esc(g.ats.qb_flip)}</small>` : '';
   return `<div class="pickbar${o.tier === 'High' ? ' hi' : ''}"><div><span class="eyebrow">Pick vs the spread${o.locked ? ' · locked' : ''}</span><br><b>${esc(atsLine(o))}</b>
     <small>Model ${esc(line(g, g.margin))} vs line ${esc(line(g, o.line))} · ${esc(atsWhy(o))}</small>${atsChange(g, o)}${qb}</div>
@@ -1490,7 +1514,7 @@ const roofNote = e => e ? `Roof not announced yet: it was closed for ${e.closed}
 function detailHtml(g){
   const d = g.detail; if (!d) return '';
   const I = d.injuries, W = d.weather, T = d.travel, F = d.form;
-  const rep = (I.home.final ? `Official: Week ${I.home.report_week} injury report (game statuses are set Friday; the model reads them Saturday).` : `Official: Week ${I.home.report_week} final report and Week ${I.home.last_game_week} snap counts. This week's first report comes Wednesday; game statuses come Friday.`) + ' Latest news covers what happened since: in-game injuries, coach updates, IR moves.';
+  const rep = (I.home.final ? `Official: Week ${I.home.report_week} injury report (game statuses are set Friday; the model reads them Saturday).` : `Official: Week ${I.home.report_week} final report and Week ${I.home.last_game_week} snap counts. This week's report isn't in the free injury feed yet (practice reports start Wednesday; game statuses come Friday).`) + ' Latest news covers what happened since: in-game injuries, coach updates, IR moves.';
   const fx = W.forecast;
   const fxTime = fx ? new Date(Date.UTC(+fx.captured.slice(0,4), +fx.captured.slice(4,6) - 1, +fx.captured.slice(6,8), +fx.captured.slice(9,11), +fx.captured.slice(11,13))).toLocaleString('en-US', {weekday:'short', hour:'numeric', minute:'2-digit', timeZone:'America/Los_Angeles'}) + ' PT' : '';
   const wx = W.outdoor || (W.roof || '').startsWith('retractable')
@@ -2121,6 +2145,5 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
-
 
 </html>
