@@ -75,6 +75,16 @@ section{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
 .g-status b{font:700 15px var(--f-display);letter-spacing:.02em;text-transform:none;color:var(--ink)}
 .g-status .tag{padding:2px 7px;border-radius:4px;background:var(--pos);color:var(--panel)}
 .g-status .tag.no{background:transparent;border:1px solid var(--muted);color:var(--muted)}
+.ar-slip{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 12px;border-bottom:1px solid var(--rule);box-shadow:inset 4px 0 0 var(--pos)}
+.ar-pick b{font:700 20px var(--f-display);margin-right:8px}
+.ar-type{font:600 10.5px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--rule);border-radius:4px;padding:1px 6px;vertical-align:3px}
+.ar-amt{text-align:right;grid-row:1/3;grid-column:2;align-self:start}
+.ar-amt b{display:block;font:700 20px var(--f-display)}
+.ar-amt small{color:var(--muted);font-size:12px}
+.ar-meta{font-size:12.5px;color:var(--ink)}
+.ar-slip .ar-res{grid-column:2;justify-self:end}
+.ar-why{grid-column:1/-1;font-size:12px;color:var(--muted);line-height:1.35}
+.ar-nobet{padding:10px 12px;font-size:13px;color:var(--muted)}
 .ar-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:12px}
 .ar-tiles > div{background:var(--panel);padding:10px 12px}
 .ar-tiles b{display:block;font:700 22px var(--f-display)}
@@ -1804,15 +1814,31 @@ try { if (localStorage.getItem('nfl-filter') === 'flag') $('f-flag').click(); } 
     [`${nb}`, `Bets this week · $${wk.stake.toFixed(0)} each`], [`${wr.w}–${wr.l}`, `This week so far · ${wk.open} open`]].map(([b, s]) => `<div><b>${b}</b><small>${s}</small></div>`).join('');
   const res = x => x.result ? `<span class="ar-res ${x.result}">${x.result === 'W' ? 'Won' : x.result === 'L' ? 'Lost' : 'Push'}</span>` : `<span class="ar-res o">${x.live ? 'Live' : 'Locked'}</span>`;
   const G_ = Object.fromEntries(G.map(g => [g.game_id, g]));
-  const nbets = wk.games.filter(g => g.bets.length).length;
-  $('ar-slate').innerHTML = `<div class="sum">${wk.games.length} games · ${nbets} with bets · ${wk.games.length - nbets} no bet</div>` + wk.games.map(g => {
-    const gg = G_[g.game_id] || {};
-    const proj = g.margin != null ? `Model ${esc(line(gg.game_id ? gg : {home: g.home, away: g.away}, g.margin))} · total ${n1(g.total)} · line ${esc(line(gg.game_id ? gg : {home: g.home, away: g.away}, g.spread_line))}, ${g.total_line ?? '—'}` : '';
-    const bets = g.bets.map(b => `<div class="ar-bet"><b>${esc(b.label)}</b>${res(b)}<small>${esc(b.book || '')}${b.price != null ? ' ' + px(b.price) : ''} · $${b.stake.toFixed(0)} · ${esc(b.strategy)}: ${esc(b.rule)} · past ${esc(b.past)} (${pct(b.rate)})${b.est ? `, estimated ${pct(b.est)}` : ''}${b.pnl != null ? ` · ${b.pnl >= 0 ? '+' : ''}${money(b.pnl)}` : ''}</small></div>`).join('');
-    return `<div class="ar-game${g.bets.length ? ' bet' : ''}"><div class="ar-top"><span class="m">${esc(g.away)} @ ${esc(g.home)}</span><span class="k">${esc(kick(gg.game_id ? gg : g))}</span></div>
-      <small style="color:var(--muted);font-size:12px">${proj}${g.conflicts && g.conflicts.length ? ` · rules disagreed (${esc(g.conflicts.join(', '))}); the higher past rate wins` : ''}</small>${bets || '<div class="ar-bet"><small>No qualifying rule fired</small></div>'}</div>`;
-  }).join('');
-  $('ar-teasers').innerHTML = wk.tickets.length ? `<div class="slate-idx"><div class="sum">Teaser tickets (6 points, from the teaser-leg rule M05)</div>${wk.tickets.map(t => `<div class="ar-game"><div class="ar-bet" style="border-top:0;margin-top:0;padding-top:0"><b>${t.teams}-team teaser: ${t.legs.map(l => esc(l.label)).join(' + ')}</b>${res(t)}<small>${px(t.price)} · $${t.stake.toFixed(0)}${t.pnl != null ? ` · ${t.pnl >= 0 ? '+' : ''}${money(t.pnl)}` : ''}</small></div></div>`).join('')}</div>` : '';
+  const dec = p => p == null ? 100 / 110 + 1 : p < 0 ? 1 + 100 / -p : 1 + p / 100;
+  const TYPE = {spread: 'Spread', total: 'Total', h1_total: '1st-half total', h1_spread: '1st-half spread', team_total: 'Team total'};
+  const pickOf = (b, g) => {
+    if (b.market === 'total' || b.market === 'h1_total') return `${b.side === 'over' ? 'Over' : 'Under'} ${n1(b.line)}`;
+    return b.label;
+  };
+  const slip = [];
+  wk.games.forEach(g => g.bets.forEach(b => slip.push({g, b})));
+  slip.sort((x, y) => x.g.kickoff.localeCompare(y.g.kickoff));
+  const row = (pick, type, game, when, stake, toWin, priceTxt, why, x) => `<div class="ar-slip">
+      <div class="ar-pick"><b>${esc(pick)}</b><span class="ar-type">${esc(type)}</span></div>
+      <div class="ar-amt"><b>$${stake.toFixed(0)}</b><small>to win $${toWin.toFixed(2)}</small></div>
+      <div class="ar-meta">${esc(game)} · ${esc(when)} · ${esc(priceTxt)}</div>${res(x)}
+      <div class="ar-why">${why}</div></div>`;
+  const totalStake = slip.reduce((a, x) => a + x.b.stake, 0) + wk.tickets.reduce((a, t) => a + t.stake, 0);
+  const noBet = wk.games.filter(g => !g.bets.length).map(g => `${g.away} @ ${g.home}`);
+  $('ar-slate').innerHTML = `<div class="sum">Bet slip · ${slip.length + wk.tickets.length} bets · $${totalStake.toFixed(0)} total · $${wk.stake.toFixed(0)} each</div>` +
+    slip.map(({g, b}) => row(pickOf(b, g), TYPE[b.market] || b.market, `${g.away} @ ${g.home}`, kick(g),
+      b.stake, b.stake * (dec(b.price) - 1), `${b.book || ''}${b.price != null ? ' ' + px(b.price) : ' (price n/a, −110 assumed)'}`,
+      `Why: ${esc(b.rule)} · past ${esc(b.past)} (${pct(b.rate)})${b.est ? `, estimated ${pct(b.est)}` : ''}${b.pnl != null ? ` · <b>${b.pnl >= 0 ? '+' : ''}${money(b.pnl)}</b>` : ''}`, b)).join('') +
+    wk.tickets.map(t => row(t.legs.map(l => l.label).join(' + '), `${t.teams}-team teaser (6 pts)`, t.legs.map(l => { const g = wk.games.find(x => x.game_id === l.game_id); return g ? `${g.away} @ ${g.home}` : l.game_id; }).join(' · '),
+      kick(t.legs[0]), t.stake, t.stake * (dec(t.price) - 1), `any book ${px(t.price)}`,
+      `Why: teaser-leg rule M05 (underdogs +1.5/+2.5 teased 6 points) · legs: ${t.legs.map(l => `${esc(l.label)} ${l.result === 'W' ? '✓' : l.result === 'L' ? '✗' : ''}`).join(', ')}${t.pnl != null ? ` · <b>${t.pnl >= 0 ? '+' : ''}${money(t.pnl)}</b>` : ''}`, t)).join('') +
+    (noBet.length ? `<div class="ar-nobet"><b>No bet:</b> ${noBet.map(esc).join(' · ')}</div>` : '');
+  $('ar-teasers').innerHTML = '';
   $('ar-rules').innerHTML = `<thead><tr><th>Rule</th><th>Main model</th><th>Past record</th><th>Past %</th><th>Estimated</th></tr></thead><tbody>` +
     A.rules.map(q => `<tr><td>${esc(q.name)}<small>${esc(q.id)}</small></td><td><span class="st st-${q.status}">${q.status}</span></td><td class="n">${esc(q.record)}</td><td class="n">${pct(q.rate)}</td><td class="n">${q.est ? pct(q.est) : '—'}</td></tr>`).join('') + '</tbody>';
   $('all-rules').hidden = false;
