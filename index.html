@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
-
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -1017,22 +1016,23 @@ function parCard(c, ver){
   const usd = v => '$' + Math.round(v).toLocaleString('en-US');
   const win = {early: 'Early card', final: 'Sunday card'};
   const res = r => r ? `<span class="par-res ${r === 'W' || r === 'L' ? r : 'P'}">${({W: 'Won', L: 'Lost', P: 'Push', V: 'Void'})[r] || r}${r === 'W' ? '' : ''}</span>` : '';
-  const card = t => { const n = t.legs.length, bt = BT['parlay' + n];
+  const BTT = (((D.lab || {}).bigtickets || {}).tickets || {}).C_dogs_and_road_favs || {};
+  const card = t => { const n = t.legs.length, tz = String(t.kind || '').startsWith('teaser'), bt = tz ? BTT[t.kind] : BT['parlay' + n];
     return `<div class="parlay${t.locked ? '' : ' paper'}">
-    <div class="par-top"><b>${n}-leg long shot</b><span class="pill ${t.locked ? 't-high' : 't-low'}">${t.locked ? 'Locked' : 'Preview'}</span></div>
+    <div class="par-top"><b>${tz ? n + '-team teaser' : n + '-leg long shot'}</b><span class="pill ${t.locked ? 't-high' : 't-low'}">${t.locked ? 'Locked' : 'Preview'}</span></div>
     <div class="par-price"><span class="big">${amer(t.price)}</span><small>${win[t.window] || ''} · ${t.locked ? 'locked ' + esc(t.locked_at || '') : 'locks ' + (t.window === 'early' ? 'Sunday 9:50 PM PT' : esc(D.cards_lock || D.lock_plan || 'Saturday 9:50 PM PT'))}</small></div>
-    <ol class="par-legs">${t.legs.map(l => `<li><b>${esc(l.label)}</b><small>est. ${(l.p * 100).toFixed(1)}% · ${l.price != null ? px(l.price) : '−110'}${l.book ? ' at ' + esc(l.book) : ''}${l.result ? ' · ' + ({W: 'won', L: 'lost', P: 'push'})[l.result] : ''}</small></li>`).join('')}</ol>
+    <ol class="par-legs">${t.legs.map(l => `<li><b>${esc(l.label)}</b><small>est. ${(l.p * 100).toFixed(1)}%${tz ? (l.base != null ? ' · teased 6 from ' + (l.base > 0 ? (l.side === 'away' ? '+' : '−') : (l.side === 'away' ? '−' : '+')) + Math.abs(l.base) : '') + (l.cushion != null ? ' · model clears it by ' + (l.cushion >= 0 ? '+' : '') + l.cushion : '') : ' · ' + (l.price != null ? px(l.price) : '−110') + (l.book ? ' at ' + esc(l.book) : '')}${l.result ? ' · ' + ({W: 'won', L: 'lost', P: 'push'})[l.result] : ''}</small></li>`).join('')}</ol>
     <div class="kv"><span>Est. chance to hit</span><span>${(t.p * 100).toFixed(1)}% · about 1 in ${Math.max(2, Math.round(1 / t.p))}</span></div>
     <div class="kv"><span>Stake → pays</span><span>${usd(t.stake)} → ${usd(t.stake + t.to_win)}</span></div>
     <div class="kv"><span>Est. value</span><span style="color:var(${t.ev > 0 ? '--pos' : '--neg'})">${t.ev > 0 ? '+' : '−'}${Math.abs(t.ev * 100).toFixed(0)}%</span></div>
     ${t.result ? res(t.result) + (t.pnl != null ? ` <small class="dnote">${t.pnl >= 0 ? '+' : '−'}${usd(Math.abs(t.pnl))}</small>` : '') : ''}
-    ${bt ? `<small class="dnote">Early-card backtest 2018–25: ${bt.w}–${bt.l} (hit ${(bt.hit * 100).toFixed(0)}%), ${bt.units >= 0 ? '+' : '−'}${Math.abs(bt.units).toFixed(0)}u</small>` : ''}
+    ${bt ? `<small class="dnote">${tz ? 'Teaser backtest 2018–25' : 'Early-card backtest 2018–25'}: ${bt.w}–${bt.l} (hit ${(bt.hit * 100).toFixed(0)}%), ${bt.units >= 0 ? '+' : '−'}${Math.abs(bt.units).toFixed(0)}u</small>` : ''}${tz ? `<small class="dnote">${esc(t.book || '')}</small>` : ''}
   </div>`; };
   const status = ['early', 'final'].map(w => LSW[w] ? `${win[w]} locked ${LSW[w]}` : `${win[w]}: preview`).join(' · ');
   $('ls-note').textContent = status;
   const btRows = ['parlay3', 'parlay4', 'parlay5', 'parlay6'].filter(k => BT[k]).map(k => `${k.slice(-1)} legs ${BT[k].w}–${BT[k].l} (${BT[k].units >= 0 ? '+' : '−'}${Math.abs(BT[k].units).toFixed(0)}u)`).join(' · ');
-  $('longshots').innerHTML = `<p class="sub" style="font-size:13.5px">High risk, high reward: each betting window gets the 3-, 4- and 5-leg parlays of its best real bets (one leg per game, ranked by the rule\u2019s estimated win rate, only legs worth betting at their price). The Sunday card\u2019s tickets lock with the first Sunday lock${D.cards_lock ? ' (' + esc(D.cards_lock) + ')' : ''}, from the bets locked by then plus the current real bets in the later Sunday and Monday games (the early card is on paper since Oct 16, 2026); until then you see a preview that changes every run. The tickets share their best legs, so they tend to hit or miss together: expect most weeks to miss and the payoff to come from the occasional hit. ${usd(((BK.config || {}).longshot || {}).pct * ((wk.bankroll_start) || 1000) || 10)} each (1% of the week\u2019s bankroll), outside the weekly budget.</p>
-    <div class="par-grid" style="margin-top:10px">${T.length ? T.map(card).join('') : '<p class="sub">No window has 3 qualifying legs yet. Tickets appear when at least 3 real bets in different games are worth betting at their price.</p>'}</div>
+  $('longshots').innerHTML = `<p class="sub" style="font-size:13.5px">High risk, high reward: each week gets the 3-, 4- and 5-leg parlays of its best real bets (one leg per game, ranked by the rule\u2019s estimated win rate, only legs worth betting at their price), plus (since Oct 17, 2026) a 4-team and a 5-team 6-point teaser of the highest-confidence picks the system has: underdogs +1.5/+2.5 and road favorites −7.5/−8.5 teased through 3 and 7, which won about 77% of the time in 2018–2025. The Sunday card\u2019s tickets lock with the first Sunday lock${D.cards_lock ? ' (' + esc(D.cards_lock) + ')' : ''}, from the bets locked by then plus the current real bets in the later Sunday and Monday games (the early card is on paper since Oct 16, 2026); until then you see a preview that changes every run. The tickets share their best legs, so they tend to hit or miss together: expect most weeks to miss and the payoff to come from the occasional hit. ${usd(((BK.config || {}).longshot || {}).pct * ((wk.bankroll_start) || 1000) || 10)} each (1% of the week\u2019s bankroll), outside the weekly budget.</p>
+    <div class="par-grid" style="margin-top:10px">${T.length ? T.map(card).join('') : '<p class="sub">No tickets yet this week. Parlay tickets need 3+ real bets in different games worth betting at their price; teaser tickets need 4+ teaser legs in Sunday and Monday games.</p>'}</div>
     <p class="dnote" style="margin-top:8px">Long shots so far: ${S.w || 0}–${S.l || 0}${S.staked ? ` · ${S.pnl >= 0 ? '+' : '−'}${usd(Math.abs(S.pnl))} on ${usd(S.staked)}` : ''}. ${btRows ? `Backtest on the early card\u2019s totals 2018–2025 (only weeks with enough legs; in-sample, so flattering; legs at −110): ${btRows}. Only the 3-leg ticket made money in both halves of the backtest.` : ''} The legs\u2019 estimated win rates are already shrunk halfway toward no edge; if they\u2019re still too high, longer tickets lose fastest.</p>`;
 }
 
@@ -2351,6 +2351,5 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
-
 
 </html>
