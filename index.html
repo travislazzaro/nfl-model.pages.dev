@@ -1749,7 +1749,21 @@ function card(g){
   const favHome = g.p_home >= 0.5;
   const moved = g.first_spread != null && g.spread_line != null && g.first_spread !== g.spread_line ? `<span class="mv">opened ${line(g, g.first_spread)}</span>` : '';
   const movedT = g.first_total != null && g.total_line != null && g.first_total !== g.total_line ? `<span class="mv">opened ${g.first_total}</span>` : '';
-  const pills = mkt => [...new Set(fl.filter(f => f.market === mkt).map(f => `<span class="pill t-${TIERS[f.kind].cls}">${TIERS[f.kind].name} · ${esc(f.market === 'total' ? (f.side === 'OVER' ? 'Over ' : 'Under ') + f.line : sideLine(g, f.side, f.line))}${f.market !== 'teaser' && f.src ? ' · ' + esc(f.src) + (f.price != null ? ' ' + px(f.price) : '') : ''}</span>`))].join('');
+  // Oct 22, 2026: paper rules are graded one by one, so two of them can land on opposite sides of the same game. Show one
+  // pill per side with the rules behind it, and say plainly when they split, so it doesn't read as "bet both sides".
+  const RULE_NM = Object.fromEntries((((D.lab || {}).strategies) || []).map(s => [s.id, s.name]));
+  const pills = mkt => {
+    const F = fl.filter(f => f.market === mkt), txt = f => f.market === 'total' ? (f.side === 'OVER' ? 'Over ' : 'Under ') + f.line : sideLine(g, f.side, f.line);
+    const one = (f, extra, title) => `<span class="pill t-${TIERS[f.kind].cls}"${title ? ` title="${esc(title)}"` : ''}>${TIERS[f.kind].name} · ${esc(txt(f))}${f.market !== 'teaser' && f.src ? ' · ' + esc(f.src) + (f.price != null ? ' ' + px(f.price) : '') : ''}${extra || ''}</span>`;
+    const real = [...new Set(F.filter(f => f.kind !== 'paper').map(f => one(f)))];
+    const bySide = {};
+    F.filter(f => f.kind === 'paper').forEach(f => (bySide[f.side] = bySide[f.side] || []).push(f));
+    const sides = Object.values(bySide);
+    const paper = sides.map(fs => { const ids = [...new Set(fs.map(f => f.strategy).filter(Boolean))];
+      return one(fs[0], ids.length ? ` · ${ids.join(', ')}` : '', ids.map(i => `${i}: ${RULE_NM[i] || ''}`).join(' | ')); });
+    const split = sides.length > 1 ? `<small class="dnote" style="display:block;margin-top:4px">Paper rules split on this ${mkt === 'total' ? 'total' : 'spread'}: ${sides.map(fs => `${esc(txt(fs[0]))} (${[...new Set(fs.map(f => f.strategy))].join(', ')})`).join(' vs ')}. Tracking only, not bets: each rule is graded on its own record.</small>` : '';
+    return real.join('') + paper.join('') + split;
+  };
   const real = realBets(g, fl);
   const chips = [];
   if (g.west_early) chips.push(`<span class="chip good">${g.away}: West-coast early kickoff</span>`);
