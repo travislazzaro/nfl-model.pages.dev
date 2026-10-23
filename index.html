@@ -1698,7 +1698,8 @@ function derivedHtml(g, fl){
   const rows = names.map(n => { const b = V.books[n], real = n !== 'Consensus' && n !== 'Open';
     return `<tr class="${n === 'Consensus' ? 'cons' : ''}"><td>${esc(n)}</td><td${real ? off(b.tt_away, F.tt_away, 1.5) : ''}>${tt(b, 'tt_away')}</td><td${real ? off(b.tt_home, F.tt_home, 1.5) : ''}>${tt(b, 'tt_home')}</td>
       <td${real ? off(b.h1_line, F.h1_line, 1.5) : ''}>${h1s(b)}</td><td${real ? off(b.h1_total, F.h1_total, 1) : ''}>${h1t(b)}</td></tr>`; }).join('');
-  const bets = fl.filter(f => DMK[f.market]).map(f => `<span class="pill t-${TIERS[f.kind].cls}" style="white-space:normal;max-width:100%">${TIERS[f.kind].name} · ${esc(dTxt(g, f))} · ${esc(f.src)}${f.price != null ? ' ' + px(f.price) : ''}</span>`).join('');
+  const _rn = Object.fromEntries((((D.lab || {}).strategies) || []).map(s => [s.id, s.name]));
+  const bets = fl.filter(f => DMK[f.market]).map(f => `<span class="pill t-${TIERS[f.kind].cls}" style="white-space:normal;max-width:100%">${TIERS[f.kind].name} · ${esc(dTxt(g, f))} · ${esc(f.src)}${f.price != null ? ' ' + px(f.price) : ''}</span>${f.kind === 'paper' && f.strategy ? `<small class="dnote" style="display:block;margin:2px 0 6px">Tracking paper rule: <b>${esc(f.strategy)}</b> ${esc(_rn[f.strategy] || '')}</small>` : ''}`).join('');
   return `<details class="more-d" id="tt-${esc(g.game_id)}"><summary>Team totals & first half${bets ? ' · paper bet' : ''}</summary>
     ${bets ? `<div style="margin:6px 0">${bets}</div>` : ''}
     <div class="bwrap"><table class="btbl"><thead><tr><th>Book</th><th>${g.away} team total</th><th>${g.home} team total</th><th>1st-half spread</th><th>1st-half total</th></tr></thead>
@@ -1752,6 +1753,11 @@ function card(g){
   // Oct 22, 2026: paper rules are graded one by one, so two of them can land on opposite sides of the same game. Show one
   // pill per side with the rules behind it, and say plainly when they split, so it doesn't read as "bet both sides".
   const RULE_NM = Object.fromEntries((((D.lab || {}).strategies) || []).map(s => [s.id, s.name]));
+  // the rule behind a paper pick, in words (two-way rules show only the half that fired: X01 "... → over")
+  const ruleNm = (id, side) => { const n = RULE_NM[id] || ''; const parts = n.split('; ');
+    if (parts.length < 2) return n; const w = String(side || '').toLowerCase();
+    const hit = parts.find(p => w && p.toLowerCase().includes('→ ' + w)); return hit || parts[0]; };
+  const ruleTag = (ids, side) => ids.length ? `<small class="dnote" style="display:block;margin:2px 0 6px;line-height:1.4">Tracking ${ids.length > 1 ? ids.length + ' paper rules' : 'paper rule'}: ${ids.map(i => `<b>${esc(i)}</b> ${esc(ruleNm(i, side))}`).join(' · ')}</small>` : '';
   const pills = mkt => {
     const F = fl.filter(f => f.market === mkt), txt = f => f.market === 'total' ? (f.side === 'OVER' ? 'Over ' : 'Under ') + f.line : sideLine(g, f.side, f.line);
     const one = (f, extra, title) => `<span class="pill t-${TIERS[f.kind].cls}"${title ? ` title="${esc(title)}"` : ''}>${TIERS[f.kind].name} · ${esc(txt(f))}${f.market !== 'teaser' && f.src ? ' · ' + esc(f.src) + (f.price != null ? ' ' + px(f.price) : '') : ''}${extra || ''}</span>`;
@@ -1760,8 +1766,8 @@ function card(g){
     F.filter(f => f.kind === 'paper').forEach(f => (bySide[f.side] = bySide[f.side] || []).push(f));
     const sides = Object.values(bySide);
     const paper = sides.map(fs => { const ids = [...new Set(fs.map(f => f.strategy).filter(Boolean))];
-      return one(fs[0], ids.length ? ` · ${ids.join(', ')}` : '', ids.map(i => `${i}: ${RULE_NM[i] || ''}`).join(' | ')); });
-    const split = sides.length > 1 ? `<small class="dnote" style="display:block;margin-top:4px">Paper rules split on this ${mkt === 'total' ? 'total' : 'spread'}: ${sides.map(fs => `${esc(txt(fs[0]))} (${[...new Set(fs.map(f => f.strategy))].join(', ')})`).join(' vs ')}. Tracking only, not bets: each rule is graded on its own record.</small>` : '';
+      return one(fs[0]) + ruleTag(ids, fs[0].side); });
+    const split = sides.length > 1 ? `<small class="dnote" style="display:block;margin-top:4px">These paper rules disagree, so the card shows both sides. Tracking only, not bets: each rule is graded on its own record.</small>` : '';
     return real.join('') + paper.join('') + split;
   };
   const real = realBets(g, fl);
