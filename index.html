@@ -757,7 +757,7 @@ function slipHtml(){
   const pv = (BK.preview || {}).week === D.week ? BK.preview : {};
   // Oct 26, 2026: a preview bet whose game has already kicked off was never locked (its lock run didn't happen): show it as
   // missed, not "still live"
-  const _ko = gid => { const g = (D.games || []).find(x => x.game_id === gid); return g && g.kickoff ? koDate(g.kickoff).getTime() : Infinity; };
+  const _ko = gid => { const g = (D.games || []).find(x => x.game_id === gid); if (!g || !g.kickoff) return Infinity; const [d, t] = g.kickoff.split(' '), [y, m, dd] = d.split('-').map(Number); const n1 = new Date(Date.UTC(y, 10, 1)).getUTCDay(), s1 = 1 + (7 - n1) % 7, m1 = new Date(Date.UTC(y, 2, 1)).getUTCDay(), s2 = 1 + (7 - m1) % 7 + 7; const edt = (m > 3 && m < 11) || (m === 3 && dd >= s2) || (m === 11 && dd < s1); const ms = new Date(`${d}T${t}:00${edt ? '-04:00' : '-05:00'}`).getTime(); return isNaN(ms) ? Infinity : ms; };
   const _gone = b => (b.legs && b.legs.length ? b.legs.map(l => l.game_id) : [b.game_id]).some(gid => Date.now() >= _ko(gid));
   const pvAll = [...(pv.bets || []), ...(pv.longshots || [])];
   const bets = wk.bets || [], pass = (wk.skipped || []).filter(b => /no edge/.test(b.why || '')), live = pvAll.filter(b => !_gone(b)), missed = pvAll.filter(_gone);
