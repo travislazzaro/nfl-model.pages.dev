@@ -5,12 +5,7 @@ The public copy of the Lussoro NFL model dashboard, served by Cloudflare (Worker
 `index.html` is rebuilt and pushed automatically by the model's scheduled runs (Sunday-night lock, Monday lock,
 Thursday/Friday mid-week refresh, Saturday update and the Tuesday lab). Don't edit it by hand: the next run replaces it.
 
-## Family pick'em
+## Family pick'em (removed Oct 27, 2026)
 
-`worker/index.js` (configured in `wrangler.jsonc`) serves the page and a small picks service for the family pick'em
-(Ronnie, Owen and Dad vs the model): `GET /api/picks`, `POST /api/pick`. Picks are stored in a Durable Object
-(SQLite storage, free plan) and stamped with the server's time; a pick made after kickoff is refused and never counts.
-Personal links: `/?p=owen`, `/?p=dad`, `/?p=ronnie`.
-Weekly pick form (one game at a time): `/picks?p=owen&w=6` (`p` = ronnie/owen/dad, `w` = week; without `w` it opens the
-current week). `GET /api/slate` serves the week's games, frozen lines, model picks and finals from the data embedded in
-`index.html`. Old `/?p=` links redirect to the form.
+The pick'em section, the pick form (`/picks`) and its API are gone. `worker/index.js` now only serves the page; the
+`PickStore` Durable Object is kept dormant so the stored picks aren't deleted.
