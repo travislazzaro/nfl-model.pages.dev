@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
+
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -714,10 +715,10 @@ function slipHtml(){
   const cents = a => a == null ? null : Math.round(100 * (a < 0 ? -a / (-a + 100) : 100 / (a + 100)));
   const flagOf = b => { const g = (D.games || []).find(x => x.game_id === b.game_id); if (!g) return null;
     return [...(g.flags_now || []), ...(g.locked_flags || [])].find(f => f.market === b.market && String(f.side).toUpperCase() === String(b.side).toUpperCase() && f.alts) || null; };
-  const altTxt = b => { const f = b.type === 'straight' && b.market === 'total' ? flagOf(b) : null; if (!f) return '';
+  const altTxt = b => { const f = b.type === 'straight' && (b.market === 'total' || b.market === 'spread') ? flagOf(b) : null; if (!f || !f.alts) return ''; const sp = b.market === 'spread';
     const ok = f.alts.filter(a => a.max_c > a.cost_c); if (!ok.length) return '';
     const best = ok.reduce((x, y) => (y.ev > x.ev ? y : x));
-    return `<small>Alternate totals (estimated DK Predictions cost → most it's worth): ${ok.map(a => `${a === best ? '<b>' : ''}${b.side === 'OVER' ? 'o' : 'u'}${a.line} ~${a.cost_c}¢ → ${a.max_c}¢${a === best ? '</b>' : ''}`).join(' · ')}. Bought points hold the edge; plus-money thresholds give most of it back.</small>`; };
+    return `<small>Alternate ${sp ? 'spreads' : 'totals'} (estimated DK Predictions cost → most it's worth): ${ok.map(a => `${a === best ? '<b>' : ''}${sp ? (a.line > 0 ? '+' : '') : (b.side === 'OVER' ? 'o' : 'u')}${a.line} ~${a.cost_c}¢ → ${a.max_c}¢${a === best ? '</b>' : ''}`).join(' · ')}. Bought points hold the edge; plus-money thresholds give most of it back.</small>`; };
   const li = (b, mode) => { const gt = b.type === 'straight' ? goodTo(b.p) : null;
     const sub = mode === 'pass' ? `best price ${where(b)} · the rule wins about ${(b.p * 100).toFixed(1)}%, so it\u2019s worth it only at ${px(gt)} or better`
       : `${mode === 'live' ? usd(b.stake) + ' if it locked now · ' : mode === 'missed' ? 'would have been ' + usd(b.stake) + ' · ' : ''}${where(b)}${PRED && b.type === 'straight' && b.price != null ? ` (~${cents(b.price)}¢ a share incl. fee)` : ''}${gt ? (PRED && b.type === 'straight' ? ` · worth it up to ${Math.round((b.p - 0.01) * 100)}¢` : ` · still worth it down to ${px(gt)}`) : ''}${b.type === 'longshot' ? ` · hits about 1 time in ${Math.max(2, Math.round(1 / b.p))}` : ''}${mode === 'lock' && b.locked_at ? ' · locked ' + esc(b.locked_at) : ''}`;
@@ -2226,5 +2227,6 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
+
 
 </html>
