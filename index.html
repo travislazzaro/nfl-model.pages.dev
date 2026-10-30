@@ -1,6 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
-
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -442,6 +441,16 @@ section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
 #mxtrack td:first-child{font-family:var(--f-body);font-size:13.5px;font-weight:500}
 #mxtrack td:first-child small{font-family:var(--f-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em}
 .mx-st{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap;background:var(--chip);color:var(--muted)}
+.rl-tbl{border-collapse:collapse;width:100%;min-width:0;font-size:12.5px;table-layout:fixed}
+.rl-tbl th,.rl-tbl td{padding:6px 6px;border-top:1px solid var(--rule);text-align:right;vertical-align:top;font-variant-numeric:tabular-nums}
+.rl-tbl thead th{font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:0}
+.rl-tbl th:first-child,.rl-tbl td:first-child{text-align:left;width:52%;font-family:var(--f-body);font-size:12.5px;font-weight:400}
+.rl-tbl td:first-child b{font-weight:600}
+.rl-tbl td small{display:block;font-size:11px;color:var(--muted);line-height:1.35}
+.rl-tbl td.rc{font-family:var(--f-mono);font-size:12px;white-space:nowrap}
+.rl-tbl td.rc .r{display:inline-block;padding:1px 6px;border-radius:4px;font-weight:600;font-size:13px}
+.rl-up{background:var(--pos-soft);color:var(--pos)} .rl-dn{background:var(--neg-soft);color:var(--neg)} .rl-na{color:var(--muted)}
+@media (max-width:460px){.rl-tbl th,.rl-tbl td{padding:5px 3px}.rl-tbl td.rc small{font-size:10.5px}}
 .mx-st.rule{background:var(--warn-soft);color:var(--warn)} .mx-st.lab{background:var(--accent-soft);color:var(--accent-ink)} .mx-st.in{background:var(--pos-soft);color:var(--pos)}
 </style>
 
@@ -1741,6 +1750,33 @@ function card(g){
   if (backs.length) chips.push(`<span class="chip good" title="${esc(backs.join(', '))}">Back: ${backs.map(b => esc(b.split(' (')[0])).join(', ')}</span>`);
   (g.split || []).length && chips.push(`<span class="chip">Polymarket split</span>`);
   mxMismatch(g).forEach(t => chips.push(`<span class="chip" title="Opponent-adjusted unit ranks (1 = best of 32)">${esc(t)}</span>`));
+  // Rules on this game (Ronnie, Oct 30, 2026): every rule that fired here, with its live and backtested record.
+  // Green = the win rate beats break-even (52.4% at -110; 73.9% for 6-point teaser legs), red = below; under 10 results stays gray.
+  const RS = Object.fromEntries((((D.lab || {}).strategies) || []).map(s => [s.id, s]));
+  const recOf = t => { const m = String(t || '').match(/^(\d+)\s*[-–]\s*(\d+)/); return m ? {w: +m[1], l: +m[2]} : null; };
+  const btOf = S => { const e = S.evidence || {};
+    const one = e.backtest_injury_driven || e.backtest || e.all;
+    if (recOf(one)) return {...recOf(one), yrs: e.seasons || ''};
+    const a = recOf(e.disc), b = recOf(e.val);
+    if (a && b) return {w: a.w + b.w, l: a.l + b.l, yrs: `${String(e.disc_seasons || '').split(/[–-]/)[0]}–${String(e.val_seasons || '').split(/[–-]/).pop()}`};
+    if (a || b) return {...(a || b), yrs: (a ? e.disc_seasons : e.val_seasons) || ''};
+    return null; };
+  const rcCell = (r, be, extra) => { if (!r || !(r.w + r.l)) return `<td class="rc"><span class="rl-na">—</span>${extra ? `<small>${extra}</small>` : ''}</td>`;
+    const n = r.w + r.l, pc = r.w / n, cls = pc >= be ? 'rl-up' : 'rl-dn';
+    return `<td class="rc"><span class="r ${cls}">${(pc * 100).toFixed(0)}%</span><small>${r.w}–${r.l}</small>${extra ? `<small>${extra}</small>` : ''}</td>`; };
+  const rulesHtml = () => {
+    const seen = new Map();
+    fl.forEach(f => [f.strategy, ...(f.rules || [])].forEach(id => { if (!id || !RS[id] || seen.has(id)) return;
+      seen.set(id, {f, own: id === f.strategy}); }));
+    if (!seen.size) return '';
+    const real = f => f.kind && f.kind !== 'paper' && !(f.policy || '').endsWith('_paper');
+    const rows = [...seen].map(([id, {f, own}]) => { const S = RS[id], bt = btOf(S), lv = S.live || {w: 0, l: 0};
+      const be = S.market === 'teaser' ? 0.739 : 0.524;
+      const st = real(f) ? (own ? 'Bet' : 'Agrees with the bet') : 'Paper';
+      return `<tr><td><b>${esc(id)}</b> ${esc(ruleNm(id, f.side))}<small>${esc(pickTxt(g, f))} · ${st} · ${esc(S.status || '')}</small></td>${rcCell(lv, be, (lv.w + lv.l) && (lv.w + lv.l) < 10 ? 'few results' : '')}${rcCell(bt, be, bt ? esc(bt.yrs) : 'no backtest')}</tr>`; });
+    return `<details class="more-d" open id="rl-${esc(g.game_id)}"><summary>Rules on this game (${seen.size})</summary>
+      <table class="rl-tbl" style="margin-top:6px"><thead><tr><th>Rule · pick</th><th>Live</th><th>Backtest</th></tr></thead><tbody>${rows.join('')}</tbody></table>
+      <p class="dnote" style="margin-top:4px">Green beats break-even (52.4% at −110; 73.9% for teaser legs), red is below it, “few results” means under 10 graded, so treat that color lightly. Live = graded since the rule was added this season.</p></details>`; };
   return `<article class="game${real.length ? ' is-bet' : ''}" id="g-${esc(g.game_id)}" data-flag="${real.length > 0}">
     ${statusStrip(g, real, fl)}
     <div class="g-top">
@@ -1775,6 +1811,7 @@ function card(g){
         <div class="kv"><span>Fair ML</span><span>${ml(g.fair_away_ml_blend ?? g.fair_away_ml)} / ${ml(g.fair_home_ml_blend ?? g.fair_home_ml)}</span></div>
       </div>
     </div>
+    ${rulesHtml()}
     <div class="split">
       <div><div class="mini-h">Where the margin comes from</div><div class="parts">${partsHtml(g)}</div></div>
       <div>${sideInfo(g)}</div>
@@ -2227,6 +2264,5 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
-
 
 </html>
