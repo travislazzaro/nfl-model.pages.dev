@@ -1,30 +1,23 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><style>body{margin:0}</style>
-
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Lussoro NFL Model: weekly NFL projections, spread picks with confidence, parlays and the model's live track record."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='6' width='20' height='20' rx='3' fill='%23C99A06' transform='rotate(-8 16 16)'/%3E%3C/svg%3E"><style>body{margin:0}</style>
 <title>Lussoro NFL Model</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 /* Layout: odds-board — a header strip, the week's flagged edges, one card per game, then ratings and method. */
+/* Layout: trading-terminal board — command bar, numbered tabs, a KPI strip, then charts in hairline panels. */
 :root{
-  --bg:#F2F4F1; --panel:#FFFFFF; --ink:#16211C; --muted:#5E6B64; --rule:#D9DFDA;
-  --accent:#C99A06; --accent-ink:#5A4300; --accent-soft:#FBF1CC;
-  --pos:#1D7A4C; --pos-soft:#E1F2E8; --neg:#B23A2E; --neg-soft:#F8E3E0; --warn:#9A5B00; --warn-soft:#FBEBD3;
-  --chip:#E8ECE8;
-  --f-display:"Saira Condensed","Arial Narrow",Arial,sans-serif;
+  --bg:#090909; --panel:#101010; --panel-2:#141414; --ink:#E6E4DF; --muted:#8E8B84; --rule:#262523;
+  --accent:#FF9F1A; --accent-ink:#FFB54D; --accent-soft:#2B1C07;
+  --pos:#2FD27A; --pos-soft:#0D2618; --neg:#FF5247; --neg-soft:#2C0F0C; --warn:#FFB020; --warn-soft:#2A1F08;
+  --info:#5CB8FF;
+  --chip:#1A1918;
+  --f-display:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#101613; --panel:#18201C; --ink:#E6ECE8; --muted:#97A39C; --rule:#2B3530;
-  --accent:#E8BC2A; --accent-ink:#F6DB82; --accent-soft:#3A3113;
-  --pos:#5CC48D; --pos-soft:#173226; --neg:#F07A6C; --neg-soft:#3A1E1B; --warn:#F0AE52; --warn-soft:#3A2A13;
-  --chip:#232C27; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#101613; --panel:#18201C; --ink:#E6ECE8; --muted:#97A39C; --rule:#2B3530;
-  --accent:#E8BC2A; --accent-ink:#F6DB82; --accent-soft:#3A3113;
-  --pos:#5CC48D; --pos-soft:#173226; --neg:#F07A6C; --neg-soft:#3A1E1B; --warn:#F0AE52; --warn-soft:#3A2A13;
-  --chip:#232C27; color-scheme:dark}
+
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;-moz-text-size-adjust:100%;text-size-adjust:100%}  /* stop phone browsers from auto-enlarging text in wide, sideways-scrolling tables */
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
@@ -453,9 +446,135 @@ section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
 .rl-up{background:var(--pos-soft);color:var(--pos)} .rl-dn{background:var(--neg-soft);color:var(--neg)} .rl-na{color:var(--muted)}
 @media (max-width:460px){.rl-tbl th,.rl-tbl td{padding:5px 3px}.rl-tbl td.rc small{font-size:10.5px}}
 .mx-st.rule{background:var(--warn-soft);color:var(--warn)} .mx-st.lab{background:var(--accent-soft);color:var(--accent-ink)} .mx-st.in{background:var(--pos-soft);color:var(--pos)}
+/* ---------- terminal skin (Oct 31, 2026): dark board, mono labels, square hairline panels ---------- */
+body{background:var(--bg);color:var(--ink)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:1440px;gap:18px;padding-block:10px 56px}
+h1,h2,h3{font-family:var(--f-mono);letter-spacing:.02em}
+h1{font-size:clamp(20px,3.2vw,26px);font-weight:600;text-transform:uppercase}
+h2{font-size:14px;font-weight:600;letter-spacing:.08em;color:var(--accent)}
+h3{font-weight:600}
+.tier-h h3,.sb-panel .sec-head h3{font-size:13px;letter-spacing:.08em;color:var(--ink)}
+header{border-bottom:1px solid var(--rule);padding-bottom:12px;gap:6px}
+header > .eyebrow{display:none}
+header > p.sub{font-size:12.5px;max-width:110ch}
+.jump{display:none}
+:where(.wrap) :where(div,section,article,details,table,button,a,span,ul,li,input,select,summary,label){border-radius:2px}
+.pill,.chip,.stp,.st,.mx-st,.par-res,.ar-res,.pc{border-radius:2px}
+.game,.parlay,.tleg,.run,.sb-tile,.edge-row,.pk-row,.split-row,.slate-idx,.tbl-wrap,.rec-wrap,.chart-wrap,.lab-grid,.track,.mk,.ar-cmp,.ar-tiles,#week-recap,.sb-panel{border-radius:2px}
+.game,.parlay,.tleg,.run,.sb-tile,.edge-row,.pk-row,.slate-idx,.sb-panel{background:var(--panel)}
+.sb-tile b,.track b,.lab-grid b,.ar-tiles b,.par-price .big,.g-match,.score .num{font-family:var(--f-mono);font-weight:600}
+.sb-tile b{font-size:26px}
+.g-match{font-size:24px}
+.callout{background:var(--accent-soft);border:1px solid #4a3410}
+.rbtn{background:var(--accent);border-color:var(--accent);color:#120c02}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#120c02}
+.t-best{background:var(--accent);color:#120c02}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* command bar */
+.tbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.brand{display:flex;align-items:center;gap:8px;font:600 13px var(--f-mono);letter-spacing:.08em;white-space:nowrap}
+.brand .tl{background:var(--accent);color:#120c02;padding:3px 6px;font-weight:700}
+.cmd{flex:1 1 320px;display:flex;min-width:0;border:1px solid #5a3b0c;background:#0c0b09}
+.cmd label{font:500 13px var(--f-mono);color:var(--accent);padding:7px 0 7px 10px}
+.cmd input{flex:1;min-width:0;background:transparent;border:0;color:var(--ink);font:400 13px var(--f-mono);padding:7px 8px;outline:none}
+.cmd input::placeholder{color:#6d6a63}
+.cmd button{background:var(--accent);color:#120c02;border:0;font:700 12px var(--f-mono);padding:0 14px;cursor:pointer}
+.clock{display:flex;gap:12px;align-items:center;font:400 12px var(--f-mono);color:var(--muted);white-space:nowrap}
+.clock b{color:var(--ink);font-weight:500;font-variant-numeric:tabular-nums}
+.clock .st{font:600 10.5px var(--f-mono);letter-spacing:.08em;padding:3px 7px;background:var(--chip);color:var(--muted);border:1px solid var(--rule)}
+.clock .st.live{color:var(--pos);border-color:#1c5236}
+.clock .st.locked{color:var(--accent);border-color:#5a3b0c}
+
+/* tabs */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:25;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;background:var(--bg);padding-block:8px;margin-block:-8px;border-bottom:1px solid var(--rule)}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;display:inline-flex;align-items:center;gap:6px;font:600 12px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);text-decoration:none;padding:5px 10px 5px 5px;background:var(--panel);border:1px solid var(--rule)}
+.tabs a i{font-style:normal;background:#3a2606;color:var(--accent);padding:1px 5px;font-size:11px}
+.tabs a:hover{border-color:#5a3b0c}
+.tabs a[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#120c02}
+.tabs a[aria-current="page"] i{background:#120c02;color:var(--accent)}
+.tab-off{display:none!important}
+.game,section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+
+/* dashboard */
+#dash{gap:10px}
+.dh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
+.dh .lbl{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px}
+.dh .lbl span{font:400 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dctl{display:flex;flex-wrap:wrap;gap:6px}
+.dctl button{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:1px solid var(--rule);padding:7px 11px;cursor:pointer}
+.dctl button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.kpi{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.kpi > div{background:var(--panel);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
+.kpi-1{grid-template-columns:repeat(6,minmax(0,1fr))}
+.kpi-2{grid-template-columns:repeat(5,minmax(0,1fr))}
+.k-l{font:500 10.5px var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.k-l .q{font-size:10px;border:1px solid var(--rule);padding:0 4px;color:var(--muted)}
+.k-v{font:600 21px var(--f-mono);font-variant-numeric:tabular-nums;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.k-s{font:400 11.5px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.k-s a,.k-s button{font:inherit;color:var(--accent);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.up{color:var(--pos)} .dn{color:var(--neg)} .fl{color:var(--muted)} .ac{color:var(--accent)}
+.k-gx{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px}
+.k-gx svg{display:block}
+.k-gx > div{display:grid;gap:4px;min-width:0}
+.pg-21{align-items:start}
+.wlbar{display:flex;height:6px;background:var(--chip);margin-top:6px}
+.wlbar i{display:block;height:100%}
+.wlrow{display:flex;justify-content:space-between;font:400 11px var(--f-mono)}
+.pgrid{display:grid;gap:10px}
+.pg-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pg-21{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.pn{background:var(--panel);border:1px solid var(--rule);display:flex;flex-direction:column;min-width:0}
+.pn-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--rule);font:600 11px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pn-h span{color:var(--muted);font-weight:400;letter-spacing:.04em;text-transform:none}
+.pn-b{padding:8px 10px 10px;min-width:0}
+.ch{width:100%;min-height:200px}
+.ch svg{display:block;width:100%;height:auto;overflow:visible}
+.ch text{font-family:var(--f-mono);font-size:10.5px;fill:var(--muted)}
+.ch .lg{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;font:500 11px var(--f-mono);color:var(--muted);margin-top:4px}
+.ch .lg i{display:inline-block;width:12px;height:2px;vertical-align:middle;margin-right:5px}
+.rtabs{display:flex;gap:4px;padding:8px 10px 0}
+.rtabs button{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--panel-2);border:1px solid var(--rule);padding:6px 10px;cursor:pointer}
+.rtabs button[aria-pressed="true"]{background:var(--accent);color:#120c02;border-color:var(--accent)}
+.rt-wrap{max-height:330px;overflow:auto;margin:8px 0 0}
+.rt{width:100%;border-collapse:collapse;min-width:0;font:400 12.5px var(--f-mono)}
+.rt th{position:sticky;top:0;background:var(--panel);font:500 10.5px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule)}
+.rt td{padding:7px 10px;border-bottom:1px solid #1b1a19;text-align:left;font-family:var(--f-mono);font-size:12.5px;font-weight:400;white-space:nowrap}
+.rt td:first-child{font-family:var(--f-mono);font-size:12.5px;font-weight:400}
+.rt td.lb{white-space:normal;color:var(--ink);font-weight:500}
+.rt td small{display:block;color:var(--muted);font-size:10.5px}
+.rt th:last-child,.rt td:last-child{text-align:right}
+.rt .rs{display:inline-block;min-width:18px;text-align:center;font-weight:600;font-size:11px;padding:1px 4px}
+.rt .rs.W{background:var(--pos-soft);color:var(--pos)} .rt .rs.L{background:var(--neg-soft);color:var(--neg)} .rt .rs.P,.rt .rs.V,.rt .rs.O{background:var(--chip);color:var(--muted)}
+.ins{list-style:none;margin:0;padding:4px 12px 10px;display:grid}
+.ins li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;padding:9px 0;border-bottom:1px solid #1b1a19;font-size:13px;line-height:1.45;color:#cfccc6}
+.ins li:last-child{border-bottom:0}
+.ins li::before{content:"›";color:var(--accent);font-weight:700}
+.ins b{color:var(--ink);font-weight:600}
+.scorebar{position:relative;height:6px;margin:10px 4px 0;background:linear-gradient(90deg,var(--neg),var(--warn) 50%,var(--pos))}
+.scorebar i{position:absolute;top:-4px;width:2px;height:14px;background:var(--ink)}
+.scoreax{display:flex;justify-content:space-between;font:400 10.5px var(--f-mono);color:var(--muted);margin:4px 4px 0}
+.dnote2{font:400 11.5px var(--f-mono);color:var(--muted)}
+@media (max-width:1100px){.kpi-1{grid-template-columns:repeat(3,minmax(0,1fr))}.kpi-2{grid-template-columns:repeat(3,minmax(0,1fr))}.pg-3{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+@media (max-width:760px){.pg-3,.pg-21{grid-template-columns:minmax(0,1fr)}.kpi-1{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi-2{grid-template-columns:minmax(0,1fr)}.clock{width:100%;justify-content:flex-end}header > p.sub{display:none}}
+@media (prefers-reduced-motion:reduce){.tabs{scroll-behavior:auto}}
 </style>
 
 <div class="wrap">
+  <div class="tbar">
+    <div class="brand"><span class="tl">LN</span>LUSSORO NFL</div>
+    <form class="cmd" id="cmd" role="search">
+      <label for="cmd-in">&gt;</label>
+      <input id="cmd-in" list="cmd-list" placeholder="Team or tab (PHI, slate, lab) · press / to focus" autocomplete="off" spellcheck="false">
+      <datalist id="cmd-list"></datalist>
+      <button type="submit">GO</button>
+    </form>
+    <div class="clock"><span>NY <b id="ck-ny">--:--:--</b></span><span>PT <b id="ck-pt">--:--</b></span><span class="st" id="ck-st">WEEK</span></div>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Sections"></nav>
   <header>
     <div class="eyebrow"><span class="flag" aria-hidden="true"></span>NFL projection model · v3</div>
     <div class="hdr-row">
@@ -467,6 +586,37 @@ section{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
   </header>
 
   <nav class="jump" id="jump" aria-label="Jump to a section"></nav>
+
+  <section id="dash" aria-labelledby="dash-h">
+    <div class="dh">
+      <div class="lbl"><h2 id="dash-h">Dashboard</h2><span id="dash-sub"></span></div>
+      <div class="dctl" role="group" aria-label="Show results as">
+        <button type="button" id="dv-usd" data-dv="usd" aria-pressed="true">Bankroll $</button>
+        <button type="button" id="dv-pct" data-dv="pct" aria-pressed="false">Bankroll %</button>
+        <button type="button" id="dv-u" data-dv="u" aria-pressed="false">All picks · units</button>
+      </div>
+    </div>
+    <div class="kpi kpi-1" id="dk1"></div>
+    <div class="kpi kpi-2" id="dk2"></div>
+    <div class="pgrid pg-3">
+      <div class="pn"><div class="pn-h">Cumulative P&amp;L<span id="c1-v"></span></div><div class="pn-b"><div class="ch" id="c1"></div></div></div>
+      <div class="pn"><div class="pn-h" id="c2-h">Bankroll balance<span id="c2-v"></span></div><div class="pn-b"><div class="ch" id="c2"></div></div></div>
+      <div class="pn"><div class="pn-h">Drawdown<span id="c3-v"></span></div><div class="pn-b"><div class="ch" id="c3"></div></div></div>
+    </div>
+    <div class="pgrid pg-3">
+      <div class="pn">
+        <div class="rtabs" role="group" aria-label="Bet list"><button type="button" id="rt-rec" data-rt="rec" aria-pressed="true">Recent bets</button><button type="button" id="rt-open" data-rt="open" aria-pressed="false">Open bets <span id="rt-n"></span></button></div>
+        <div class="rt-wrap"><table class="rt" id="rt"></table></div>
+      </div>
+      <div class="pn"><div class="pn-h">Score<span id="sc-v"></span></div><div class="pn-b"><div class="ch" id="c5"></div><div class="scorebar"><i id="sc-mark"></i></div><div class="scoreax"><span>0</span><span>50</span><span>100</span></div></div></div>
+      <div class="pn"><div class="pn-h">Win % · avg win · avg loss<span id="c4-v"></span></div><div class="pn-b"><div class="ch" id="c4"></div></div></div>
+    </div>
+    <div class="pgrid pg-21">
+      <div class="pn"><div class="pn-h">Net P&amp;L by game day<span id="c6-v"></span></div><div class="pn-b"><div class="ch" id="c6"></div></div></div>
+      <div class="pn"><div class="pn-h">Insights<span id="ins-v"></span></div><ul class="ins" id="ins"></ul></div>
+    </div>
+    <p class="dnote2" id="dash-note"></p>
+  </section>
 
   <section id="week-recap" aria-labelledby="wr-h" hidden>
     <div class="sec-head"><h2 id="wr-h">Week recap</h2><button type="button" class="more" id="wr-back">Back to this week</button></div>
@@ -2276,6 +2426,366 @@ const h = location.hash.slice(1);
 if (h && links[h]) setTimeout(() => document.getElementById(h).scrollIntoView({block: 'start'}), 60);
 })();
 </script>
+<script>
+// ---------- terminal board (Oct 31, 2026): numbered tabs, command bar, clock and the Dashboard tab ----------
+(function(){
+const D = JSON.parse(document.getElementById('data').textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+// ---------- tabs ----------
+const TABS = [
+  ['dash', 'Dash', ['dash']],
+  ['bets', 'Bets', ['bets', 'bankroll']],
+  ['slate', 'Slate', ['full-slate', 'all-rules']],
+  ['parlays', 'Parlays', ['parlay-builder', 'teaser-board']],
+  ['record', 'Record', ['scoreboard', 'by-season']],
+  ['lab', 'Lab', ['model-lab']],
+  ['ratings', 'Ratings', ['team-ratings']],
+  ['run', 'Run', ['run-now']],
+  ['about', 'About', ['how-it-works', 'every-game-picks', 'line-shopping']]
+];
+const ALWAYS = new Set(['week-recap']);
+const tabOfSec = {}; TABS.forEach(([k, , ids]) => ids.forEach(id => tabOfSec[id] = k));
+const secs = [...document.querySelectorAll('.wrap > section[id]')];
+const nav = $('tabs');
+nav.innerHTML = TABS.map(([k, n], i) => `<a href="#${k}" data-tab="${k}"><i>${i + 1}</i>${n}</a>`).join('');
+let curTab = null;
+function showTab(k, scrollTop){
+  if (!TABS.some(t => t[0] === k)) k = 'dash';
+  curTab = k;
+  secs.forEach(s => { if (ALWAYS.has(s.id)) return; s.classList.toggle('tab-off', (tabOfSec[s.id] || 'about') !== k); });
+  nav.querySelectorAll('a').forEach(a => { if (a.dataset.tab === k) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  const a = nav.querySelector(`a[data-tab="${k}"]`);
+  if (a) { const l = a.offsetLeft - 16, r = a.offsetLeft + a.offsetWidth + 16; if (l < nav.scrollLeft) nav.scrollLeft = l; else if (r > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = r - nav.clientWidth; }
+  if (k === 'dash') requestAnimationFrame(drawAll);
+  if (scrollTop) window.scrollTo({top: 0, behavior: 'auto'});
+}
+function tabOfEl(el){ const s = el && el.closest('section[id]'); return s ? (ALWAYS.has(s.id) ? null : (tabOfSec[s.id] || 'about')) : null; }
+function setHash(k){ try { history.replaceState(null, '', '#' + k); } catch (e) {} }
+nav.addEventListener('click', e => { const a = e.target.closest('a[data-tab]'); if (!a) return; e.preventDefault(); showTab(a.dataset.tab, true); setHash(a.dataset.tab); });
+// links that point at a section or element in another tab: switch first, then let the page's own handler scroll
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-jump], a[data-id], a[href^="#"]'); if (!a || a.closest('#tabs')) return;
+  const id = a.dataset.jump || a.dataset.id || (a.getAttribute('href') || '').slice(1); if (!id) return;
+  if (TABS.some(t => t[0] === id)) { e.preventDefault(); showTab(id, true); setHash(id); return; }
+  const t = tabOfEl(document.getElementById(id)); if (t && t !== curTab) showTab(t, false);
+}, true);
+function route(){
+  const h = location.hash.slice(1);
+  if (/^week-\d+$/.test(h)) { showTab(curTab || 'dash'); return; }
+  if (TABS.some(t => t[0] === h)) { showTab(h); return; }
+  const t = h ? tabOfEl(document.getElementById(h)) : null;
+  showTab(t || 'dash');
+}
+addEventListener('hashchange', route);
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const tag = (e.target.tagName || '').toLowerCase(); if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+  if (e.key === '/') { e.preventDefault(); $('cmd-in').focus(); return; }
+  const n = +e.key; if (n >= 1 && n <= TABS.length) { showTab(TABS[n - 1][0], true); setHash(TABS[n - 1][0]); }
+});
+
+// ---------- command bar ----------
+const G = D.games || [];
+$('cmd-list').innerHTML = TABS.map(([k, n]) => `<option value="${esc(n.toLowerCase())}">`).join('') + G.map(g => `<option value="${esc(g.away + ' @ ' + g.home)}">`).join('');
+$('cmd').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = $('cmd-in').value.trim(); if (!q) return;
+  const ql = q.toLowerCase(), t = TABS.find(([k, n]) => k === ql || n.toLowerCase() === ql);
+  if (t) { showTab(t[0], true); setHash(t[0]); $('cmd-in').value = ''; return; }
+  const teams = q.toUpperCase().match(/[A-Z]{2,3}/g) || [];
+  const g = G.find(g => teams.length && teams.every(x => x === g.away || x === g.home)) || G.find(g => teams.some(x => x === g.away || x === g.home));
+  if (!g) { $('cmd-in').setCustomValidity('No game or tab matches "' + q + '". Try a team code like PHI or a tab name like lab.'); $('cmd-in').reportValidity(); return; }
+  $('cmd-in').setCustomValidity('');
+  showTab('slate', false); setHash('slate');
+  const el = document.getElementById('g-' + g.game_id);
+  if (el) { el.hidden = false; requestAnimationFrame(() => el.scrollIntoView({block: 'start', behavior: reduce() ? 'auto' : 'smooth'})); }
+  $('cmd-in').value = '';
+});
+$('cmd-in').addEventListener('input', () => $('cmd-in').setCustomValidity(''));
+
+// ---------- clock + status ----------
+const fNY = new Intl.DateTimeFormat('en-US', {timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false});
+const fPT = new Intl.DateTimeFormat('en-US', {timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hour12: false});
+function tick(){ const d = new Date(); $('ck-ny').textContent = fNY.format(d); $('ck-pt').textContent = fPT.format(d); }
+tick(); setInterval(tick, 1000);
+const koMs = g => { const [d, t] = String(g.kickoff || '').split(' '); if (!d) return NaN; const [y, m, dd] = d.split('-').map(Number), [hh, mm] = (t || '0:0').split(':').map(Number);
+  const dst = (() => { const n1 = new Date(Date.UTC(y, 10, 1)).getUTCDay(), s1 = 1 + (7 - n1) % 7, m1 = new Date(Date.UTC(y, 2, 1)).getUTCDay(), s2 = 1 + (7 - m1) % 7 + 7;
+    const md = m * 100 + dd; return md > 300 + s2 && md < 1100 + s1 || (m === 3 && dd === s2) ; })();
+  return Date.UTC(y, m - 1, dd, hh + (dst ? 4 : 5), mm); };
+const upcoming = G.filter(g => !(koMs(g) <= Date.now()));
+const unlocked = upcoming.filter(g => !g.game_locked);
+const st = $('ck-st');
+if (!upcoming.length) { st.textContent = `WK ${D.week} FINAL`; }
+else if (!unlocked.length) { st.textContent = `WK ${D.week} LOCKED`; st.classList.add('locked'); }
+else { st.textContent = `WK ${D.week} LIVE`; st.classList.add('live'); }
+
+// ---------- dashboard data ----------
+const BK = (D.lab || {}).bankroll || {}, START = ((BK.config || {}).start) || 1000;
+const KO = {}; G.forEach(g => { if (g.kickoff) KO[g.game_id] = g.kickoff; });
+(((D.weeks || {}).weeks) || []).forEach(w => (w.games || []).forEach(g => { if (g.kickoff && !KO[g.id]) KO[g.id] = g.kickoff; }));
+const MON = {Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12};
+const pad2 = n => String(n).padStart(2, '0');
+function dateOf(gids, lockedAt){
+  const ks = gids.map(g => KO[g]).filter(Boolean).sort();
+  if (ks.length) return ks[ks.length - 1].slice(0, 10);
+  const m = /^[A-Z][a-z]{2} ([A-Z][a-z]{2}) (\d{1,2})/.exec(lockedAt || ''); if (!m) return null;
+  const mo = MON[m[1]]; return `${D.season + (mo <= 3 ? 1 : 0)}-${pad2(mo)}-${pad2(+m[2])}`;
+}
+const dec = p => { p = p == null ? -110 : +p; return 1 + (p < 0 ? 100 / -p : p / 100); };
+const STRN = Object.fromEntries((((D.lab || {}).strategies) || []).map(s => [s.id, s.name]));
+const HIST = (D.history || []).filter(h => h && !h.void);
+const clvOf = (gid, mk, side) => { const h = HIST.find(h => h.game_id === gid && h.market === mk && String(h.side).toUpperCase() === String(side).toUpperCase() && h.clv != null); return h ? h.clv : null; };
+const TYPE = b => b.type === 'longshot' ? 'Long shot' : b.type === 'card' ? 'Teaser card' : b.kind === 'trial' ? 'Trial' : ({best: 'Best Bet', model: 'Play', angle: 'Angle', early: 'Early card', verify: 'Verify'})[b.kind] || 'Bet';
+const bankAll = Object.keys(BK.weeks || {}).sort().flatMap(k => (BK.weeks[k].bets || []).map(b => ({...b, wk: k})));
+const bankRows = bankAll.map(b => ({
+  label: b.label || b.name || b.id, type: TYPE(b), strategy: b.strategy || (b.type === 'card' ? 'Teaser cards' : b.type === 'longshot' ? 'Long shots' : ''),
+  market: b.market || (b.type === 'card' ? 'teaser' : 'parlay'), side: b.side, week: b.wk,
+  date: dateOf(b.legs && b.legs.length ? b.legs.map(l => l.game_id) : [b.game_id], b.locked_at),
+  result: b.result || null, pnl: b.pnl == null ? null : +b.pnl, stake: +b.stake || 0, price: b.price,
+  clv: b.type === 'straight' ? clvOf(b.game_id, b.market, b.side) : null, real: true
+}));
+const histRows = HIST.filter(h => ['W', 'L', 'P'].includes(h.result)).map(h => ({
+  label: h.pick || h.game_id, type: h.kind === 'paper' ? 'Paper' : (h.tier || h.kind), strategy: h.strategy, market: h.market, side: h.side,
+  week: `${h.season}-${pad2(h.week)}`, date: dateOf([h.game_id], h.locked_at), result: h.result,
+  pnl: h.result === 'W' ? +(dec(h.price) - 1).toFixed(3) : h.result === 'L' ? -1 : 0, stake: 1, price: h.price, clv: h.clv, real: h.kind !== 'paper'
+}));
+let MODE = 'usd';
+try { const m = localStorage.getItem('nfl-dash-mode'); if (['usd', 'pct', 'u'].includes(m)) MODE = m; } catch (e) {}
+const conv = v => MODE === 'pct' ? v / START * 100 : v;
+const fmt = (v, dp) => { if (v == null || !isFinite(v)) return '—'; const s = v > 0 ? '+' : v < 0 ? '−' : '';
+  const a = Math.abs(v); if (MODE === 'usd') return s + '$' + a.toLocaleString('en-US', {maximumFractionDigits: dp ?? 0});
+  if (MODE === 'pct') return s + a.toFixed(dp ?? 2) + '%'; return s + a.toFixed(dp ?? 1) + 'u'; };
+const fmtAbs = (v, dp) => fmt(Math.abs(v), dp).replace(/^\+/, '');
+const usd = v => (v < 0 ? '−' : '') + '$' + Math.abs(v).toLocaleString('en-US', {maximumFractionDigits: 0});
+const cls = v => v > 0.0001 ? 'up' : v < -0.0001 ? 'dn' : 'fl';
+const fdate = d => d ? `${d.slice(5, 7)}/${d.slice(8, 10)}/${d.slice(2, 4)}` : '—';
+const dayName = d => d ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][new Date(d + 'T12:00:00Z').getUTCDay()] : '';
+const dnum = d => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
+
+function stats(rows){
+  const done = rows.filter(r => r.result && r.pnl != null && r.date).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+  const W = done.filter(r => r.result === 'W').length, L = done.filter(r => r.result === 'L').length, P = done.length - W - L;
+  const v = r => conv(r.pnl);
+  const gw = done.filter(r => r.pnl > 0).reduce((a, r) => a + v(r), 0), gl = -done.filter(r => r.pnl < 0).reduce((a, r) => a + v(r), 0);
+  const net = gw - gl, staked = done.reduce((a, r) => a + r.stake, 0), netRaw = done.reduce((a, r) => a + r.pnl, 0);
+  const byDay = {}; done.forEach(r => byDay[r.date] = (byDay[r.date] || 0) + v(r));
+  const days = Object.keys(byDay).sort();
+  let cum = 0, peak = 0, maxDD = 0, ddPct = 0; const cumS = [], balS = [], ddS = [];
+  const base = MODE === 'u' ? 0 : conv(START);
+  if (days.length) { const d0 = new Date(dnum(days[0]) - 86400000).toISOString().slice(0, 10); cumS.push([d0, 0]); balS.push([d0, base]); ddS.push([d0, 0]); }
+  days.forEach(d => { cum += byDay[d]; peak = Math.max(peak, cum); const dd = cum - peak; maxDD = Math.min(maxDD, dd);
+    const pk = base + peak, ddp = pk > 0 && MODE !== 'u' ? dd / pk * 100 : dd; ddPct = Math.min(ddPct, ddp);
+    cumS.push([d, cum]); balS.push([d, base + cum]); ddS.push([d, ddp]); });
+  // running win %, avg win, avg loss (bet by bet)
+  let w = 0, l = 0, sw = 0, sl = 0; const roll = [];
+  done.forEach(r => { if (r.result === 'W') { w++; sw += v(r); } else if (r.result === 'L') { l++; sl += -v(r); } if (w + l) roll.push([r.date, 100 * w / (w + l), w ? sw / w : 0, l ? -sl / l : 0]); });
+  const byWeek = {}; done.forEach(r => byWeek[r.week] = (byWeek[r.week] || 0) + r.pnl);
+  const wk = Object.values(byWeek), wkUp = wk.filter(x => x > 0).length;
+  const clvs = done.filter(r => r.clv != null).map(r => +r.clv);
+  return {done, W, L, P, gw, gl, net, netRaw, staked, pf: gl > 0 ? gw / gl : (gw > 0 ? Infinity : 0), avgW: W ? gw / W : 0, avgL: L ? gl / L : 0,
+    exp: done.length ? net / done.length : 0, roi: staked ? netRaw / staked : 0, byDay, days, cumS, balS, ddS, maxDD, ddPct, roll, weeks: wk.length, wkUp,
+    clv: clvs.length ? clvs.reduce((a, b) => a + b, 0) / clvs.length : null, clvN: clvs.length, beat: clvs.length ? clvs.filter(x => x > 0).length / clvs.length : null};
+}
+
+// ---------- SVG charts (drawn at the panel's real width so labels stay legible on phones) ----------
+function nice(span, n){ const raw = span / Math.max(1, n), p = Math.pow(10, Math.floor(Math.log10(raw || 1))), f = raw / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
+function ticks(lo, hi, n){ if (lo === hi) { lo -= 1; hi += 1; } const s = nice(hi - lo, n); const a = Math.floor(lo / s) * s, b = Math.ceil(hi / s) * s; const out = []; for (let v = a; v <= b + s / 2; v += s) out.push(+v.toFixed(10)); return out; }
+function lineChart(el, o){
+  const W = Math.max(260, el.clientWidth || 300), H = o.h || 210, L = o.padL || 52, R = o.padR || 12, T = 10, B = 24;
+  const pts = o.series.flatMap(s => s.pts);
+  if (!pts.length) { el.innerHTML = `<p class="dnote2" style="padding:60px 8px;text-align:center">${esc(o.empty || 'No graded bets yet.')}</p>`; return; }
+  const xs = pts.map(p => dnum(p[0])); let x0 = Math.min(...xs), x1 = Math.max(...xs); if (x0 === x1) { x0 -= 86400000; x1 += 86400000; }
+  let ys = pts.map(p => p[1]); if (o.yInclude) ys = ys.concat(o.yInclude);
+  const yt = o.yTicks || ticks(Math.min(...ys), Math.max(...ys), 4), y0 = yt[0], y1 = yt[yt.length - 1];
+  const X = d => L + (dnum(d) - x0) / (x1 - x0) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria || '')}">`;
+  yt.forEach(v => { s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)" stroke-dasharray="${v === 0 ? '0' : '2 3'}" stroke-width="1"/><text x="${L - 6}" y="${Y(v) + 3.5}" text-anchor="end">${esc(o.yf(v))}</text>`; });
+  const nT = Math.min(4, new Set(pts.map(p => p[0])).size);
+  for (let i = 0; i < nT; i++) { const t = x0 + (x1 - x0) * (nT === 1 ? 0.5 : i / (nT - 1)); const d = new Date(t).toISOString().slice(0, 10);
+    s += `<text x="${Math.min(W - R - 2, Math.max(L + 2, X(d)))}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === nT - 1 ? 'end' : 'middle'}">${fdate(d)}</text>`; }
+  o.series.forEach((se, si) => {
+    if (!se.pts.length) return;
+    const path = se.pts.map((p, i) => (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1)).join(' ');
+    if (se.area) { const by = Y(se.base ?? Math.max(y0, Math.min(y1, 0)));
+      s += `<defs><linearGradient id="${el.id}-g${si}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${se.color}" stop-opacity="${se.down ? 0.06 : 0.38}"/><stop offset="1" stop-color="${se.color}" stop-opacity="${se.down ? 0.38 : 0.04}"/></linearGradient></defs>`;
+      s += `<path d="${path} L ${X(se.pts[se.pts.length - 1][0]).toFixed(1)} ${by} L ${X(se.pts[0][0]).toFixed(1)} ${by} Z" fill="url(#${el.id}-g${si})" stroke="none"/>`; }
+    s += `<path d="${path}" fill="none" stroke="${se.color}" stroke-width="1.8" stroke-linejoin="round"/>`;
+    if (se.dots !== false && se.pts.length < 40) se.pts.forEach(p => { s += `<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="2.2" fill="${se.color}"/>`; });
+    const e = se.pts[se.pts.length - 1]; s += `<circle cx="${X(e[0])}" cy="${Y(e[1])}" r="4" fill="var(--bg)" stroke="${se.color}" stroke-width="2"/>`;
+  });
+  s += '</svg>';
+  el.innerHTML = s + (o.legend ? `<div class="lg">${o.legend.map(([c, n]) => `<span><i style="background:${c}"></i>${esc(n)}</span>`).join('')}</div>` : '');
+}
+function rollChart(el, roll){
+  const W = Math.max(260, el.clientWidth || 300), H = 210, L = 40, R = 52, T = 10, B = 24;
+  if (!roll.length) { el.innerHTML = '<p class="dnote2" style="padding:60px 8px;text-align:center">No graded bets yet.</p>'; return; }
+  const n = roll.length, X = i => L + (n === 1 ? 0.5 : i / (n - 1)) * (W - L - R);
+  const Yl = v => T + (1 - v / 100) * (H - T - B);
+  const M = Math.max(...roll.map(r => Math.max(Math.abs(r[2]), Math.abs(r[3]))), 0.0001), rt = ticks(-M, M, 4), r0 = rt[0], r1 = rt[rt.length - 1];
+  const Yr = v => T + (1 - (v - r0) / (r1 - r0)) * (H - T - B);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Running win rate, average win and average loss">`;
+  [0, 25, 50, 75, 100].forEach(v => { s += `<line x1="${L}" x2="${W - R}" y1="${Yl(v)}" y2="${Yl(v)}" stroke="var(--rule)" stroke-dasharray="2 3"/><text x="${L - 6}" y="${Yl(v) + 3.5}" text-anchor="end">${v}%</text>`; });
+  [r0, 0, r1].forEach(v => { s += `<text x="${W - R + 6}" y="${Yr(v) + 3.5}">${esc(fmt(v, MODE === 'usd' ? 0 : 1))}</text>`; });
+  const be = 52.4; s += `<line x1="${L}" x2="${W - R}" y1="${Yl(be)}" y2="${Yl(be)}" stroke="var(--accent)" stroke-opacity=".45" stroke-dasharray="4 4"/>`;
+  const path = (f, Y) => roll.map((r, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(f(r)).toFixed(1)).join(' ');
+  [[r => r[2], Yr, 'var(--pos)'], [r => r[3], Yr, 'var(--neg)'], [r => r[1], Yl, 'var(--info)']].forEach(([f, Y, c]) => {
+    s += `<path d="${path(f, Y)}" fill="none" stroke="${c}" stroke-width="1.8"/>`;
+    const e = roll[n - 1]; s += `<circle cx="${X(n - 1)}" cy="${Y(f(e))}" r="3.5" fill="var(--bg)" stroke="${c}" stroke-width="2"/>`; });
+  s += `<text x="${L}" y="${H - 6}">bet 1</text><text x="${W - R}" y="${H - 6}" text-anchor="end">bet ${n}</text></svg>`;
+  el.innerHTML = s + `<div class="lg"><span><i style="background:var(--info)"></i>Win %</span><span><i style="background:var(--pos)"></i>Avg win</span><span><i style="background:var(--neg)"></i>Avg loss</span><span><i style="background:var(--accent)"></i>Break-even 52.4%</span></div>`;
+}
+function barChart(el, days, byDay){
+  const W = Math.max(260, el.clientWidth || 300), H = 200, L = 52, R = 12, T = 10, B = 24;
+  if (!days.length) { el.innerHTML = '<p class="dnote2" style="padding:60px 8px;text-align:center">No graded bets yet.</p>'; return; }
+  const vals = days.map(d => byDay[d]), yt = ticks(Math.min(0, ...vals), Math.max(0, ...vals), 4), y0 = yt[0], y1 = yt[yt.length - 1];
+  const Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B), n = days.length, slot = (W - L - R) / n, bw = Math.max(3, Math.min(34, slot * 0.6));
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Net result by game day">`;
+  yt.forEach(v => { s += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)" stroke-dasharray="${v === 0 ? '0' : '2 3'}"/><text x="${L - 6}" y="${Y(v) + 3.5}" text-anchor="end">${esc(fmt(v, MODE === 'usd' ? 0 : 1))}</text>`; });
+  const every = Math.ceil(n / Math.max(1, Math.floor((W - L - R) / 64)));
+  days.forEach((d, i) => { const v = byDay[d], x = L + slot * i + (slot - bw) / 2, y = Y(Math.max(0, v)), h = Math.max(1, Math.abs(Y(v) - Y(0)));
+    s += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${v > 0 ? 'var(--pos)' : v < 0 ? 'var(--neg)' : 'var(--muted)'}"><title>${fdate(d)} ${dayName(d)}: ${esc(fmt(v))}</title></rect>`;
+    if (i % every === 0 || i === n - 1) s += `<text x="${(L + slot * i + slot / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${dayName(d)} ${d.slice(5, 7)}/${d.slice(8, 10)}</text>`; });
+  el.innerHTML = s + '</svg>';
+}
+function radar(el, axes){
+  const W = Math.max(260, el.clientWidth || 300), H = 230, cx = W / 2, cy = H / 2 + 2, r = Math.min(W / 2 - 90, H / 2 - 30);
+  const n = axes.length, P = (i, f) => [cx + Math.sin(2 * Math.PI * i / n) * r * f, cy - Math.cos(2 * Math.PI * i / n) * r * f];
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Score by category">`;
+  [0.25, 0.5, 0.75, 1].forEach(f => { s += `<polygon points="${axes.map((_, i) => P(i, f).join(',')).join(' ')}" fill="none" stroke="var(--rule)"/>`; });
+  axes.forEach((_, i) => { const [x, y] = P(i, 1); s += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--rule)"/>`; });
+  s += `<polygon points="${axes.map((a, i) => P(i, Math.max(0.02, a[1] / 100)).join(',')).join(' ')}" fill="var(--accent)" fill-opacity=".28" stroke="var(--accent)" stroke-width="1.6"/>`;
+  axes.forEach((a, i) => { const [x, y] = P(i, 1.16), anc = Math.abs(x - cx) < 4 ? 'middle' : x > cx ? 'start' : 'end';
+    s += `<text x="${x}" y="${y + 3}" text-anchor="${anc}" style="fill:var(--ink);font-size:10.5px">${esc(a[0].toUpperCase())} <tspan style="fill:var(--accent)">${Math.round(a[1])}</tspan></text>`; });
+  el.innerHTML = s + '</svg>';
+}
+function gauge(w, p, l){
+  const t = Math.max(1, w + p + l), R = 34, cx = 40, cy = 40; let a0 = Math.PI, s = `<svg width="80" height="56" viewBox="0 0 80 56" aria-hidden="true">`;
+  [[w, 'var(--pos)'], [p, 'var(--muted)'], [l, 'var(--neg)']].forEach(([v, c]) => { if (!v) return; const a1 = a0 + Math.PI * v / t;
+    const p0 = [cx + R * Math.cos(a0), cy + R * Math.sin(a0)], p1 = [cx + R * Math.cos(a1), cy + R * Math.sin(a1)];
+    s += `<path d="M ${p0[0].toFixed(2)} ${p0[1].toFixed(2)} A ${R} ${R} 0 0 1 ${p1[0].toFixed(2)} ${p1[1].toFixed(2)}" fill="none" stroke="${c}" stroke-width="7"/>`; a0 = a1; });
+  if (w + p + l === 0) s += `<path d="M 6 40 A 34 34 0 0 1 74 40" fill="none" stroke="var(--chip)" stroke-width="7"/>`;
+  return s + `<text x="8" y="54" style="font:600 10px var(--f-mono);fill:var(--pos)">${w}</text><text x="40" y="54" text-anchor="middle" style="font:600 10px var(--f-mono);fill:var(--muted)">${p}</text><text x="72" y="54" text-anchor="end" style="font:600 10px var(--f-mono);fill:var(--neg)">${l}</text></svg>`;
+}
+function donut(gw, gl){
+  const t = gw + gl, f = t ? gw / t : 0, R = 22, C = 2 * Math.PI * R;
+  return `<svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="${R}" fill="none" stroke="${t ? 'var(--neg)' : 'var(--chip)'}" stroke-width="7"/>` +
+    (t ? `<circle cx="28" cy="28" r="${R}" fill="none" stroke="var(--pos)" stroke-width="7" stroke-dasharray="${(C * f).toFixed(2)} ${C.toFixed(2)}" transform="rotate(-90 28 28)"/>` : '') + '</svg>';
+}
+
+// ---------- render ----------
+let RT = 'rec';
+function drawAll(){
+  if (curTab !== 'dash') return;
+  const rows = MODE === 'u' ? histRows : bankRows, S = stats(rows), B = stats(bankRows.map(r => r));
+  const wk = (BK.weeks || {})[`${D.season}-${pad2(D.week)}`] || {}, wkRows = bankRows.filter(r => r.week === `${D.season}-${pad2(D.week)}`);
+  const wkDone = wkRows.filter(r => r.result && r.pnl != null), wkNet = wkDone.reduce((a, r) => a + r.pnl, 0);
+  const open = wkRows.filter(r => !r.result), openStake = open.reduce((a, r) => a + r.stake, 0), openWin = (wk.bets || []).filter(b => !b.result).reduce((a, b) => a + (+b.to_win || 0), 0);
+  const pv = (BK.preview || {}).week === D.week ? BK.preview : {}, pvBets = [...(pv.bets || []), ...(pv.longshots || [])].filter(b => !(koMs({kickoff: KO[b.game_id]}) <= Date.now()));
+  const bankNet = bankRows.filter(r => r.result && r.pnl != null).reduce((a, r) => a + r.pnl, 0), bal = START + bankNet;
+  const bankStaked = bankRows.filter(r => r.result && r.pnl != null).reduce((a, r) => a + r.stake, 0);
+  const money = v => MODE === 'pct' ? (v >= 0 ? '+' : '−') + Math.abs(v / START * 100).toFixed(2) + '%' : (v > 0 ? '+' : '') + usd(v);
+  const nextLock = unlocked.map(g => g.lock_at).filter(Boolean)[0];
+  const firstWk = (BK.config || {}).first || [D.season, 6];
+  $('dash-sub').textContent = `Week ${D.week} · ${MODE === 'u' ? 'every graded pick, 1 unit each, real and paper' : `$${START.toLocaleString()} bankroll from Week ${firstWk[1]}`}${D.updated ? ' · updated ' + D.updated : ''}`;
+  $('dk1').innerHTML = [
+    ['This week', `<span class="${cls(wkNet)}">${money(wkNet)}</span>`, `${wkDone.filter(r => r.result === 'W').length}–${wkDone.filter(r => r.result === 'L').length} graded · ${open.length} open`],
+    ['Season P&L', `<span class="${cls(bankNet)}">${money(bankNet)}</span>`, `ROI ${(bankStaked ? bankNet / bankStaked * 100 : 0).toFixed(1)}% on ${usd(bankStaked)} staked`],
+    ['Bankroll', `${MODE === 'pct' ? (bal / START * 100).toFixed(2) + '%' : usd(bal)}`, `started ${usd(START)} · Week ${firstWk[1]}`],
+    ['Open bets', `${open.length}`, open.length ? `${usd(openStake)} at risk · to win ${usd(openWin)}` : 'nothing riding right now'],
+    ['Next lock', `<span class="${nextLock ? 'ac' : 'fl'}">${esc(nextLock ? nextLock.replace(/ PT$/, '') : (upcoming.length ? 'All locked' : 'Week done'))}</span>`, nextLock ? `${unlocked.length} game${unlocked.length === 1 ? '' : 's'} still live` : `<a href="#bets" data-tab-link="bets">see the bet slip</a>`],
+    ['In line to lock', `${pvBets.length}`, pvBets.length ? `${usd(pvBets.reduce((a, b) => a + (+b.stake || 0), 0))} if it locked now` : 'no live bet clears the rules yet']
+  ].map(([l, v, s]) => `<div><span class="k-l">${l}</span><span class="k-v">${v}</span><span class="k-s">${s}</span></div>`).join('');
+  const pfTxt = S.pf === Infinity ? '∞' : S.pf.toFixed(2), wlr = S.avgL ? S.avgW / S.avgL : 0, wsh = S.avgW + S.avgL ? S.avgW / (S.avgW + S.avgL) * 100 : 50;
+  $('dk2').innerHTML = [
+    `<div class="k-gx"><div><span class="k-l">Win % <span class="q" title="Wins over wins plus losses; pushes don't count">i</span></span><span class="k-v">${S.W + S.L ? (100 * S.W / (S.W + S.L)).toFixed(1) + '%' : '—'}</span><span class="k-s">${S.W}–${S.L}${S.P ? '–' + S.P : ''} · break-even 52.4%</span></div>${gauge(S.W, S.P, S.L)}</div>`,
+    `<div class="k-gx"><div><span class="k-l">Profit factor <span class="q" title="Money won on winners divided by money lost on losers">i</span></span><span class="k-v ${S.pf >= 1 ? 'up' : S.pf ? 'dn' : 'fl'}">${S.done.length ? pfTxt : '—'}</span><span class="k-s">won ${fmtAbs(S.gw)} · lost ${fmtAbs(S.gl)}</span></div>${donut(S.gw, S.gl)}</div>`,
+    `<div><span class="k-l">Avg win / avg loss</span><span class="k-v">${wlr ? wlr.toFixed(2) : '—'}</span><div class="wlbar"><i style="width:${wsh}%;background:var(--pos)"></i><i style="width:${100 - wsh}%;background:var(--neg)"></i></div><div class="wlrow"><span class="up">${fmt(S.avgW, MODE === 'usd' ? 0 : 2)}</span><span class="dn">${fmt(-S.avgL, MODE === 'usd' ? 0 : 2)}</span></div></div>`,
+    `<div><span class="k-l">Expectancy <span class="q" title="Average result per graded bet">i</span></span><span class="k-v ${cls(S.exp)}">${fmt(S.exp, MODE === 'usd' ? 2 : 2)}</span><span class="k-s">per bet · ${S.done.length} graded · ROI ${(S.roi * 100).toFixed(1)}%</span></div>`,
+    `<div><span class="k-l">Closing-line value <span class="q" title="Points the line moved your way between the lock and kickoff">i</span></span><span class="k-v ${S.clv == null ? 'fl' : cls(S.clv)}">${S.clv == null ? '—' : (S.clv > 0 ? '+' : '') + S.clv.toFixed(2) + ' pts'}</span><span class="k-s">${S.clvN ? `beat the close ${Math.round(S.beat * 100)}% · ${S.clvN} bets` : 'no closing lines yet'}</span></div>`
+  ].map(x => `<div>${x}</div>`).join('');
+  const yf = v => fmt(v, MODE === 'usd' ? 0 : MODE === 'pct' ? 0 : 0);
+  $('c1-v').innerHTML = `<b class="${cls(S.net)}">${fmt(S.net, MODE === 'usd' ? 0 : 2)}</b>`;
+  lineChart($('c1'), {series: [{pts: S.cumS, color: S.net >= 0 ? 'var(--pos)' : 'var(--neg)', area: true, base: 0}], yf, yInclude: [0], aria: 'Cumulative profit and loss'});
+  if (MODE === 'u') {
+    $('c2-h').firstChild.textContent = 'Real vs paper picks';
+    const R = stats(histRows.filter(r => r.real)), Pp = stats(histRows.filter(r => !r.real));
+    $('c2-v').innerHTML = `<b class="${cls(R.net)}">real ${fmt(R.net)}</b> · <b class="${cls(Pp.net)}">paper ${fmt(Pp.net)}</b>`;
+    lineChart($('c2'), {series: [{pts: R.cumS, color: 'var(--accent)'}, {pts: Pp.cumS, color: 'var(--info)', dots: false}], yf, yInclude: [0], aria: 'Real and paper picks, cumulative units',
+      legend: [['var(--accent)', 'Real bets'], ['var(--info)', 'Paper (tracked, not bet)']]});
+  } else {
+    $('c2-h').firstChild.textContent = 'Bankroll balance';
+    $('c2-v').innerHTML = `<b>${MODE === 'pct' ? (bal / START * 100).toFixed(2) + '%' : usd(bal)}</b>`;
+    const fb = v => MODE === 'pct' ? v.toFixed(0) + '%' : usd(v);
+    lineChart($('c2'), {series: [{pts: S.balS, color: 'var(--accent)'}], yf: fb, yInclude: [conv(START)], aria: 'Bankroll balance'});
+  }
+  $('c3-v').innerHTML = `<b class="${S.ddPct < 0 ? 'dn' : 'fl'}">${MODE === 'u' ? fmt(S.maxDD) : S.ddPct.toFixed(2) + '%'}</b> max`;
+  lineChart($('c3'), {series: [{pts: S.ddS, color: 'var(--neg)', area: true, base: 0, down: true}], yf: v => MODE === 'u' ? fmt(v) : v.toFixed(0) + '%', yInclude: [0], aria: 'Drawdown from the high-water mark'});
+  rollChart($('c4'), S.roll);
+  $('c4-v').textContent = S.W + S.L ? `${(100 * S.W / (S.W + S.L)).toFixed(1)}% now` : '';
+  const updays = S.days.filter(d => S.byDay[d] > 0).length, dndays = S.days.filter(d => S.byDay[d] < 0).length;
+  $('c6-v').textContent = `${updays}W · ${dndays}L · ${S.days.length - updays - dndays} flat`;
+  barChart($('c6'), S.days, S.byDay);
+  // score
+  const clamp = v => Math.max(0, Math.min(100, v));
+  const ax = [
+    ['Win %', clamp(((S.W + S.L ? S.W / (S.W + S.L) : 0.5) - 0.40) / 0.25 * 100)],
+    ['Profit f.', clamp(((S.pf === Infinity ? 3 : S.pf) - 0.5) / 2 * 100)],
+    ['W/L ratio', clamp((wlr - 0.5) / 1.5 * 100)],
+    ['Close value', S.clv == null ? 50 : clamp((S.clv + 1) / 2.5 * 100)],
+    ['Drawdown', clamp(100 - (MODE === 'u' ? Math.abs(S.maxDD) / Math.max(1, S.done.length) * 400 : Math.abs(S.ddPct) * 2.5))],
+    ['Consistency', S.weeks ? clamp(S.wkUp / S.weeks * 100) : 50]
+  ];
+  const score = ax.reduce((a, x) => a + x[1], 0) / ax.length;
+  $('sc-v').innerHTML = `<b class="${score >= 60 ? 'up' : score >= 45 ? 'ac' : 'dn'}">${score.toFixed(1)}</b> / 100`;
+  $('sc-mark').style.left = `calc(${score}% - 1px)`;
+  radar($('c5'), ax);
+  // recent / open table
+  $('rt-n').textContent = `${open.length + pvBets.length}`;
+  const head = '<thead><tr><th>Game day</th><th>Pick</th><th>Res</th><th>Net</th></tr></thead>';
+  if (RT === 'rec') {
+    const list = S.done.slice().reverse().slice(0, 60);
+    $('rt').innerHTML = head + '<tbody>' + (list.length ? list.map(r => `<tr><td>${fdate(r.date)}<small>${dayName(r.date)}</small></td><td class="lb">${esc(r.label)}<small>${esc(r.type)}${r.strategy && !/^Teaser|^Long/.test(r.strategy) ? ' · ' + esc(r.strategy) : ''}</small></td><td><span class="rs ${r.result}">${r.result}</span></td><td class="${cls(r.pnl)}">${fmt(conv(r.pnl), MODE === 'usd' ? 0 : 2)}</td></tr>`).join('') : '<tr><td colspan="4" class="lb">No graded bets yet.</td></tr>') + '</tbody>';
+  } else {
+    const ol = [...open.map(r => ({...r, st: 'Locked'})), ...pvBets.map(b => ({label: b.label || b.name, type: TYPE(b), date: dateOf(b.legs && b.legs.length ? b.legs.map(l => l.game_id) : [b.game_id], ''), stake: +b.stake || 0, st: 'Live'}))];
+    $('rt').innerHTML = '<thead><tr><th>Game day</th><th>Pick</th><th>State</th><th>Stake</th></tr></thead><tbody>' + (ol.length ? ol.map(r => `<tr><td>${fdate(r.date)}<small>${dayName(r.date)}</small></td><td class="lb">${esc(r.label)}<small>${esc(r.type)}</small></td><td><span class="rs O">${r.st}</span></td><td>${usd(r.stake)}</td></tr>`).join('') : '<tr><td colspan="4" class="lb">Nothing open. Live bets show here until they lock.</td></tr>') + '</tbody>';
+  }
+  // insights
+  const grp = (f) => { const m = {}; S.done.forEach(r => { const k = f(r); if (!k) return; const x = m[k] || (m[k] = {n: 0, w: 0, l: 0, v: 0}); x.n++; x.v += conv(r.pnl); if (r.result === 'W') x.w++; if (r.result === 'L') x.l++; }); return Object.entries(m); };
+  const rec = x => `${x.w}–${x.l}`, ins = [];
+  const rules = grp(r => r.strategy).filter(([, x]) => x.n >= (MODE === 'u' ? 3 : 1)).sort((a, b) => b[1].v - a[1].v);
+  const rn = k => STRN[k] ? `${k} (${STRN[k].split(':')[0].split('→')[0].trim().slice(0, 42)})` : k;
+  if (rules.length) { const [bk, bx] = rules[0], [wk2, wx] = rules[rules.length - 1];
+    ins.push(`Best rule: <b>${esc(rn(bk))}</b> ${esc(fmt(bx.v))} over ${bx.n} (${rec(bx)}).` + (rules.length > 1 && wx.v < 0 ? ` Worst: <b>${esc(rn(wk2))}</b> ${esc(fmt(wx.v))} over ${wx.n} (${rec(wx)}).` : '')); }
+  const types = grp(r => MODE === 'u' ? (r.real ? 'Real bets' : 'Paper') : r.type).sort((a, b) => b[1].v - a[1].v);
+  if (types.length > 1) ins.push(types.map(([k, x]) => `<b>${esc(k)}</b> ${esc(fmt(x.v))} (${rec(x)})`).join(' · ') + '.');
+  const dys = grp(r => dayName(r.date)).sort((a, b) => b[1].v - a[1].v);
+  if (dys.length > 1) ins.push(`By game day, <b>${dys[0][0]}</b> is your best (${esc(fmt(dys[0][1].v))}) and <b>${dys[dys.length - 1][0]}</b> your worst (${esc(fmt(dys[dys.length - 1][1].v))}).`);
+  const ou = grp(r => r.market === 'total' ? (String(r.side).toUpperCase() === 'OVER' ? 'Overs' : 'Unders') : null);
+  if (ou.length) ins.push(ou.map(([k, x]) => `<b>${k}</b> ${esc(fmt(x.v))} (${rec(x)})`).join(' · ') + '.');
+  const mk = grp(r => ({total: 'Totals', spread: 'Spreads', teaser: 'Teasers', parlay: 'Parlays'})[r.market] || null).sort((a, b) => b[1].v - a[1].v);
+  if (mk.length > 1) ins.push('By market: ' + mk.map(([k, x]) => `<b>${k}</b> ${esc(fmt(x.v))}`).join(' · ') + '.');
+  const losses = S.done.filter(r => r.pnl < 0).map(r => conv(r.pnl));
+  if (losses.length && S.avgW) ins.push(`Your largest loss equals <b>${(Math.abs(Math.min(...losses)) / S.avgW).toFixed(1)}</b> average wins.`);
+  if (S.net > 0 && S.done.length > 5) { const top = S.done.map(r => conv(r.pnl)).sort((a, b) => b - a).slice(0, 5).reduce((a, b) => a + b, 0); ins.push(`Your top 5 bets account for <b>${Math.round(top / S.net * 100)}%</b> of net P&amp;L.`); }
+  if (S.clv != null) ins.push(`The line moved your way after the lock on <b>${Math.round(S.beat * 100)}%</b> of ${S.clvN} bets (average <b>${S.clv > 0 ? '+' : ''}${S.clv.toFixed(2)}</b> points).`);
+  $('ins').innerHTML = ins.length ? ins.map(x => `<li><span>${x}</span></li>`).join('') : '<li><span>Insights appear once a few bets are graded.</span></li>';
+  $('ins-v').textContent = MODE === 'u' ? 'all picks' : 'real bets';
+  $('dash-note').textContent = MODE === 'u' ? 'All picks: every graded pick since Week 5 at 1 unit, real and paper, at its locked price. Paper picks are tracked to test rules, not bet.' :
+    'Bankroll: the experimental $1,000 bankroll from Week 6, staked on real bets, teaser cards, long shots and trial bets. Game day is the kickoff date (a card or long shot uses its last leg).';
+}
+document.querySelector('#dash .dctl').addEventListener('click', e => { const b = e.target.closest('button[data-dv]'); if (!b) return; MODE = b.dataset.dv;
+  try { localStorage.setItem('nfl-dash-mode', MODE); } catch (e2) {}
+  document.querySelectorAll('#dash .dctl button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawAll(); });
+document.querySelectorAll('#dash .dctl button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.dv === MODE)));
+document.querySelector('#dash .rtabs').addEventListener('click', e => { const b = e.target.closest('button[data-rt]'); if (!b) return; RT = b.dataset.rt;
+  document.querySelectorAll('#dash .rtabs button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); drawAll(); });
+document.getElementById('dash').addEventListener('click', e => { const a = e.target.closest('a[data-tab-link]'); if (!a) return; e.preventDefault(); showTab(a.dataset.tabLink, true); setHash(a.dataset.tabLink); });
+let rz = null; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(drawAll, 120); });
+route();
+})();
+</script>
 
 </html>
